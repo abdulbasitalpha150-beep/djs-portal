@@ -87,13 +87,42 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Internal operations portal for authorized personnel." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://djs-portal.vercel.app" },
+      { property: "og:image", content: "https://djs-portal.vercel.app/og-image.jpg" },
+      { property: "og:image:alt", content: "DJ's Freight Broker LLC secure employee portal preview" },
       { property: "og:site_name", content: "DJ's Freight Broker LLC" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "DJ's Freight Broker LLC | Secure Agent Portal" },
       { name: "twitter:description", content: "Internal operations portal for authorized personnel." },
+      { name: "twitter:image", content: "https://djs-portal.vercel.app/og-image.jpg" },
+      { name: "twitter:image:alt", content: "DJ's Freight Broker LLC secure employee portal preview" },
       { name: "application-name", content: "DJ's Freight Portal" },
     ],
     links: [
+      {
+        rel: "icon",
+        href: "/favicon_io/favicon.ico",
+        sizes: "any",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/favicon_io/favicon-32x32.png",
+        sizes: "32x32",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/favicon_io/favicon-16x16.png",
+        sizes: "16x16",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/favicon_io/apple-touch-icon.png",
+      },
+      {
+        rel: "manifest",
+        href: "/favicon_io/site.webmanifest",
+      },
       {
         rel: "stylesheet",
         href: appCss,
