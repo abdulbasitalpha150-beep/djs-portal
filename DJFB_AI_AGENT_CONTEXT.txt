@@ -1,0 +1,95 @@
+DJ'S FREIGHT BROKER LLC - AI AGENT CONTEXT
+
+PROJECT: In-House Freight Brokerage CRM / Agent Portal
+
+PURPOSE:
+Build a secure, database-driven internal CRM for freight brokerage operations. This is NOT the public website. The CRM manages sales, customer relationships, freight operations, and management reporting.
+
+CORE OBJECTIVE:
+One centralized system for:
+- Leads
+- Companies & Contacts
+- Calls & Notes
+- Follow-ups
+- Quotes
+- Credit Approval
+- Customers
+- Loads
+- Gross Profit
+- Agent Commissions
+- Reporting
+- Role-Based Access
+
+USER ROLES:
+- Owner/Admin (full access)
+- Manager (team management)
+- Agent (assigned records only)
+
+CRM DATA:
+- Companies
+- Contacts
+- Lead ownership
+- Sales pipeline
+- Call history
+- Tasks & follow-ups
+- Freight profile
+- Quotes
+- Credit documents
+- Loads
+- Revenue
+- Carrier cost
+- Gross profit
+- Commissions
+
+PIPELINE:
+Lead
+→ Call
+→ Follow-up
+→ Quote
+→ Credit Approval
+→ Customer
+→ Load
+→ Revenue
+→ Commission
+
+RULES:
+- Every interaction creates an activity log.
+- Every lead requires a next action or closure reason.
+- Prevent duplicate companies.
+- Quotes require approval before booking.
+- Company data remains access controlled.
+- Timestamp all changes.
+- Keep audit history.
+
+CRM vs TMS:
+CRM = Sales & customer management.
+TMS = Freight execution after booking.
+
+BUILD PHASES:
+1. Leads, calls, notes, follow-ups.
+2. Quotes, customers, credit, documents.
+3. Loads, gross profit, commissions.
+4. Dashboards, reports, attendance.
+
+DASHBOARD METRICS:
+- Calls per agent
+- Follow-ups
+- Open leads
+- Quote approvals
+- Revenue
+- Gross profit
+- Gross margin
+- Agent commissions
+- Overdue tasks
+- Attendance
+
+SECURITY:
+- Secure login
+- RBAC
+- Company-controlled accounts
+- Audit logs
+- Backups
+- Export restrictions
+
+GOAL:
+Build the smallest secure CRM that keeps agents accountable, protects company data, prevents missed follow-ups, and provides management complete operational visibility.

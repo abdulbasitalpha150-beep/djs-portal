@@ -1,0 +1,34 @@
+CRM FEATURE STATUS
+Based on the current workspace code
+
+YES
+- Leads
+- Calls & notes
+- Follow-ups
+- Quotes
+- Credit approval
+- Customers
+- Loads
+- Agent commissions
+- Reporting
+- Role-based access
+- Secure login
+- Audit history
+- Attendance / activity tracking
+
+PARTIAL
+- Companies & contacts
+- Every interaction creates an activity log
+- Quotes require approval before booking
+- Company data access control
+- Timestamped changes
+- Dashboard metrics
+- CRM vs TMS setup
+
+NO
+- Gross profit tracking
+- Every lead requires a next action or closure reason
+- Prevent duplicate companies
+- Backups
+- Export restrictions
+- Company-controlled accounts
