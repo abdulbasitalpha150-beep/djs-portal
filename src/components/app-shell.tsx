@@ -486,27 +486,21 @@ function SidebarBrand({
           {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
         </Button>
       )}
-      {collapsed ? (
-        // Previously an empty <div></div> here — collapsing the sidebar left a
-        // blank gap where the brand mark used to be. Restored it.
-        <div className="grid size-8 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
-          <span className="font-mono text-xs font-bold">D</span>
-        </div>
-      ) : (
-        <div className="flex min-w-0 items-center gap-2.5">
-          <div className="grid size-8 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
-            <span className="font-mono text-xs font-bold">DJF</span>
-          </div>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-sidebar-foreground">
-              DJ's Panel
-            </div>
-            <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
-              Agent Portal - TMS
-            </div>
-          </div>
-        </div>
-      )}
+     {!collapsed && (
+  <div className="flex min-w-0 items-center gap-2.5">
+    {/* <div className="grid size-8 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
+      <span className="font-mono text-xs font-bold">DJF</span>
+    </div> */}
+    <div className="min-w-0">
+      <div className="truncate text-sm font-semibold text-sidebar-foreground">
+        DJ's Panel
+      </div>
+      <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+        Agent Portal - TMS
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
@@ -801,7 +795,7 @@ function UserMenu() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => {
               void handleSignOut();
             }}
@@ -809,7 +803,16 @@ function UserMenu() {
           >
             <LogOut className="mr-2 size-4" />
             Sign out
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
+          <DropdownMenuItem
+  onClick={() => {
+    void handleSignOut();
+  }}
+  className="text-destructive hover:text-black focus:text-black"
+>
+  <LogOut className="mr-2 size-4" />
+  Sign out
+</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

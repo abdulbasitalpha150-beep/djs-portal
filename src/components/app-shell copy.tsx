@@ -203,14 +203,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </p>
           <div className="mt-6 flex justify-center gap-2">
             <RoleSwitcher inline />
-            <Button
-              variant="outline"
-              onClick={() => {
-                void handleSignOut(true);
-              }}
-            >
-              Sign out
-            </Button>
+           <Button
+  variant="outline"
+  className="hover:text-black"
+  onClick={() => {
+    void handleSignOut(true);
+  }}
+>
+  Sign out
+</Button>
           </div>
         </div>
       </div>

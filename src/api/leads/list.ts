@@ -426,6 +426,7 @@ export async function leadsListHandler(request: Request) {
         at: (note.createdAt ?? lead.updatedAt ?? lead.createdAt).toISOString(),
       })),
       pendingApproval: false,
+      comments: [],
     };
   });
 
@@ -455,6 +456,12 @@ export async function leadsListHandler(request: Request) {
         at: (note.createdAt ?? req.createdAt).toISOString(),
       })),
       pendingApproval: true,
+      approvalStatus: req.status,
+      comments: (req.comments || []).map((comment: any) => ({
+        by: comment.userName,
+        at: comment.createdAt?.toISOString() || new Date().toISOString(),
+        body: comment.text,
+      })),
       requestedBy: req.requestedByName,
     };
   });

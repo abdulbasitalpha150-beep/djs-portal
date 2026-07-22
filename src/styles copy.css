@@ -134,15 +134,12 @@
   --color-bg-sidebar: var(--ink-900);
   --color-bg-surface: var(--ink-850);
   --color-bg-surface-2: var(--ink-800);
-  --color-bg-surface-hover: color-mix(in oklab, var(--ink-100) 6%, var(--color-bg-surface));
   --color-border: var(--ink-700);
   --color-border-subtle: var(--ink-800);
-  --color-overlay: color-mix(in oklab, var(--ink-950) 72%, transparent);
 
   --color-text-primary: #f4efe6;
   --color-text-secondary: var(--ink-300);
   --color-text-muted: var(--ink-400);
-  --color-text-disabled: var(--ink-600);
 
   --color-brand: var(--navy-400);
   --color-brand-hover: var(--navy-300);
@@ -150,32 +147,15 @@
   --color-cta-bg-hover: var(--plum-400);
   --color-cta-text: #ffffff;
 
-  /* Text/icon variants (light-on-dark, high contrast vs ink-950) */
   --color-success: var(--moss-400);
   --color-warning: var(--ochre-400);
   --color-danger: var(--brick-400);
   --color-info: var(--steel-400);
 
-  /* NOTE: --success/--warning/--danger/--info double as SOLID badge/button
-     backgrounds in the shadcn contract below. Because they're light tints
-     in dark mode, their paired *-foreground must be DARK ink, not white —
-     see the shadcn contract block. (moss-400/ink-950 ≈ 7.9:1,
-     ochre-400/ink-950 ≈ 8.8:1, brick-400/ink-950 ≈ 5.7:1,
-     steel-400/ink-950 ≈ 6.1:1 — all comfortably pass WCAG AA.) */
-
-  /* Nav active state: color-mix tint of brand over sidebar bg, so it always
-     stays visibly distinct from the sidebar regardless of exact bg value.
-     (The old navy-900-on-ink-900 pairing was ~1:1 contrast — invisible.) */
-  --color-nav-active-bg: color-mix(in oklab, var(--navy-400) 18%, var(--color-bg-sidebar));
+  --color-nav-active-bg: var(--navy-900);
   --color-nav-active-text: var(--navy-200);
   --color-nav-text: var(--ink-300);
   --color-nav-text-hover: #f4efe6;
-
-  /* Link gets its own token (navy-300, ~5.8:1 on ink-950) — separate from
-     --color-brand (navy-400, ~3.6:1) which is tuned for button fills with
-     white text (~5.4:1) and 3:1-only UI elements like borders/rings. */
-  --color-link: var(--navy-300);
-  --color-link-hover: var(--navy-200);
 
   /* Functional aliases used elsewhere in app code */
   --color-bg-primary: var(--color-bg-app);
@@ -183,6 +163,8 @@
   --color-surface-card: var(--color-bg-surface);
   --color-cta: var(--color-cta-bg);
   --color-cta-hover: var(--color-cta-bg-hover);
+  --color-link: var(--color-brand);
+  --color-link-hover: var(--color-brand-hover);
   --color-error: var(--color-danger);
 
   /* shadcn/ui variable contract — DO NOT rename these, only values change */
@@ -201,13 +183,13 @@
   --accent: var(--color-cta-bg);
   --accent-foreground: var(--color-cta-text);
   --destructive: var(--color-danger);
-  --destructive-foreground: var(--ink-950);
+  --destructive-foreground: #ffffff;
   --success: var(--color-success);
-  --success-foreground: var(--ink-950);
+  --success-foreground: #ffffff;
   --warning: var(--color-warning);
-  --warning-foreground: var(--ink-950);
+  --warning-foreground: var(--color-cta-text);
   --info: var(--color-info);
-  --info-foreground: var(--ink-950);
+  --info-foreground: #ffffff;
   --border: var(--color-border);
   --input: var(--color-bg-surface-2);
   --ring: var(--color-brand);
@@ -234,15 +216,12 @@
   --color-bg-sidebar: var(--ink-900);
   --color-bg-surface: var(--ink-850);
   --color-bg-surface-2: var(--ink-800);
-  --color-bg-surface-hover: color-mix(in oklab, var(--ink-100) 6%, var(--color-bg-surface));
   --color-border: var(--ink-700);
   --color-border-subtle: var(--ink-800);
-  --color-overlay: color-mix(in oklab, var(--ink-950) 72%, transparent);
 
   --color-text-primary: #f4efe6;
   --color-text-secondary: var(--ink-300);
   --color-text-muted: var(--ink-400);
-  --color-text-disabled: var(--ink-600);
 
   --color-brand: var(--navy-400);
   --color-brand-hover: var(--navy-300);
@@ -255,20 +234,10 @@
   --color-danger: var(--brick-400);
   --color-info: var(--steel-400);
 
-  --color-nav-active-bg: color-mix(in oklab, var(--navy-400) 18%, var(--color-bg-sidebar));
+  --color-nav-active-bg: var(--navy-900);
   --color-nav-active-text: var(--navy-200);
   --color-nav-text: var(--ink-300);
   --color-nav-text-hover: #f4efe6;
-
-  --color-link: var(--navy-300);
-  --color-link-hover: var(--navy-200);
-
-  --color-bg-primary: var(--color-bg-app);
-  --color-bg-secondary: var(--color-bg-surface-2);
-  --color-surface-card: var(--color-bg-surface);
-  --color-cta: var(--color-cta-bg);
-  --color-cta-hover: var(--color-cta-bg-hover);
-  --color-error: var(--color-danger);
 
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
@@ -285,13 +254,13 @@
   --accent: var(--color-cta-bg);
   --accent-foreground: var(--color-cta-text);
   --destructive: var(--color-danger);
-  --destructive-foreground: var(--ink-950);
+  --destructive-foreground: #ffffff;
   --success: var(--color-success);
-  --success-foreground: var(--ink-950);
+  --success-foreground: #ffffff;
   --warning: var(--color-warning);
-  --warning-foreground: var(--ink-950);
+  --warning-foreground: var(--color-cta-text);
   --info: var(--color-info);
-  --info-foreground: var(--ink-950);
+  --info-foreground: #ffffff;
   --border: var(--color-border);
   --input: var(--color-bg-surface-2);
   --ring: var(--color-brand);
@@ -316,15 +285,12 @@
   --color-bg-sidebar: #ffffff;
   --color-bg-surface: #ffffff;
   --color-bg-surface-2: var(--oatmeal-50);
-  --color-bg-surface-hover: color-mix(in oklab, var(--navy-900) 4%, var(--color-bg-surface));
   --color-border: var(--oatmeal-200);
   --color-border-subtle: var(--oatmeal-100);
-  --color-overlay: color-mix(in oklab, var(--navy-950) 45%, transparent);
 
   --color-text-primary: var(--navy-900);
   --color-text-secondary: var(--navy-600);
   --color-text-muted: var(--oatmeal-600);
-  --color-text-disabled: var(--oatmeal-400);
 
   --color-brand: var(--navy-600);
   --color-brand-hover: var(--navy-700);
@@ -332,28 +298,15 @@
   --color-cta-bg-hover: var(--plum-600);
   --color-cta-text: #ffffff;
 
-  /* Darker steps here so white foreground text on solid badges/buttons
-     clears WCAG AA (moss-600/white ≈ 4.8:1, brick-600/white ≈ 7.2:1,
-     steel-600/white ≈ 5.6:1). */
   --color-success: var(--moss-600);
   --color-warning: var(--ochre-600);
   --color-danger: var(--brick-600);
   --color-info: var(--steel-600);
 
-  --color-nav-active-bg: color-mix(in oklab, var(--navy-600) 8%, var(--color-bg-sidebar));
+  --color-nav-active-bg: var(--navy-50);
   --color-nav-active-text: var(--navy-600);
   --color-nav-text: var(--navy-500);
   --color-nav-text-hover: var(--navy-900);
-
-  --color-link: var(--color-brand);
-  --color-link-hover: var(--color-brand-hover);
-
-  --color-bg-primary: var(--color-bg-app);
-  --color-bg-secondary: var(--color-bg-surface-2);
-  --color-surface-card: var(--color-bg-surface);
-  --color-cta: var(--color-cta-bg);
-  --color-cta-hover: var(--color-cta-bg-hover);
-  --color-error: var(--color-danger);
 
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
@@ -374,9 +327,7 @@
   --success: var(--color-success);
   --success-foreground: #ffffff;
   --warning: var(--color-warning);
-  /* ochre-600/white is only 4.03:1 (fails AA); ochre-600/navy-900 is 4.61:1
-     (passes). Warning uses dark text in both themes. */
-  --warning-foreground: var(--navy-900);
+  --warning-foreground: var(--color-cta-text);
   --info: var(--color-info);
   --info-foreground: #ffffff;
   --border: var(--color-border);
@@ -416,10 +367,6 @@
   }
   ::selection {
     background: color-mix(in oklab, var(--primary) 35%, transparent);
-  }
-  :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
   }
 }
 

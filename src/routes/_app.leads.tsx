@@ -77,6 +77,8 @@ type LeadItem = {
     at: string;
   }>;
   pendingApproval?: boolean;
+  approvalStatus?: "pending" | "approved" | "rejected" | "changes_requested";
+  comments?: Array<{ by: string; at: string; body: string }>;
   requestedBy?: string;
 };
 
@@ -514,8 +516,18 @@ function LeadsPage() {
               <div>
                 <span className="font-medium">{l.company}</span>
                 {l.pendingApproval && (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
-                    Pending Approval
+                  <span className={`ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    l.approvalStatus === "rejected"
+                      ? "bg-red-100 text-red-800"
+                      : l.approvalStatus === "changes_requested"
+                      ? "bg-orange-100 text-orange-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}>
+                    {l.approvalStatus === "changes_requested"
+                      ? "Changes Requested"
+                      : l.approvalStatus === "rejected"
+                      ? "Rejected"
+                      : "Pending Approval"}
                   </span>
                 )}
               </div>
@@ -552,8 +564,18 @@ function LeadsPage() {
                   <div className="flex items-center gap-2">
                     <SheetTitle>{editing ? "Edit lead" : open.company}</SheetTitle>
                     {open.pendingApproval && (
-                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
-                        Pending Approval
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        open.approvalStatus === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : open.approvalStatus === "changes_requested"
+                          ? "bg-orange-100 text-orange-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}>
+                        {open.approvalStatus === "changes_requested"
+                          ? "Changes Requested"
+                          : open.approvalStatus === "rejected"
+                          ? "Rejected"
+                          : "Pending Approval"}
                       </span>
                     )}
                   </div>
@@ -732,6 +754,27 @@ function LeadsPage() {
                         Shipping: {open.shippingNotes}
                       </p>
                     </div>
+
+                    {open.pendingApproval && open.comments?.length > 0 && (
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Approval comments
+                        </div>
+                        <ul className="mt-2 space-y-2">
+                          {open.comments.map((comment, index) => (
+                            <li
+                              key={index}
+                              className="rounded-md border border-border bg-card/50 p-3 text-sm"
+                            >
+                              <div className="text-xs text-muted-foreground">
+                                {comment.by} · {relative(comment.at)}
+                              </div>
+                              <div className="mt-1">{comment.body}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
                     <Tabs defaultValue="add">
                       <TabsList className="grid grid-cols-2">

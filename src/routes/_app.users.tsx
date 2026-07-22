@@ -799,7 +799,7 @@ function UsersPage() {
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="outline" className="w-full text-destructive hover:text-destructive sm:w-auto">
+                        <Button variant="outline" className="w-full text-destructive hover:sm:w-auto sm:w-auto">
                           <Trash2 className="size-4" /> Delete
                         </Button>
                       </AlertDialogTrigger>
