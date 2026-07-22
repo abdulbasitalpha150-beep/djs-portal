@@ -43,6 +43,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 
 export const Route = createFileRoute("/_app/leads")({
   component: LeadsPage,
@@ -214,32 +221,27 @@ function LeadsPage() {
     }
   }
 
-  function exportLeads() {
+  function exportLeads(format: "csv" | "xlsx") {
     const rows = filtered.length > 0 ? filtered : items;
-    const header = ["Company", "Contact", "Email", "Phone", "Status", "Agent", "Last Activity"];
-    const payload = [
-      header.join(","),
-      ...rows.map((lead) =>
-        [
-          escapeCsv(lead.company),
-          escapeCsv(lead.contact),
-          escapeCsv(lead.email),
-          escapeCsv(lead.phone),
-          escapeCsv(lead.status),
-          escapeCsv(lead.agentName),
-          escapeCsv(new Date(lead.lastActivity).toLocaleString()),
-        ].join(","),
-      ),
-    ].join("\n");
+    const exported = exportRowsToFile(
+      rows,
+      [
+        { label: "Company", getValue: (lead) => lead.company },
+        { label: "Contact", getValue: (lead) => lead.contact },
+        { label: "Email", getValue: (lead) => lead.email },
+        { label: "Phone", getValue: (lead) => lead.phone },
+        { label: "Status", getValue: (lead) => lead.status },
+        { label: "Agent", getValue: (lead) => lead.agentName },
+        { label: "Last Activity", getValue: (lead) => (lead.lastActivity ? new Date(lead.lastActivity).toLocaleString() : "") },
+      ],
+      formatExportFilename("leads", format),
+      format,
+      "Leads",
+    );
 
-    const blob = new Blob([payload], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "leads.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success("Leads exported");
+    if (exported) {
+      toast.success("Leads exported");
+    }
   }
 
   function addActivity(kind: "call" | "note" | "followup" | "task", body: string) {
@@ -336,9 +338,17 @@ function LeadsPage() {
         description="Prospects in your pipeline. Auto-scoped to your records when viewing as an agent."
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={exportLeads}>
-              <Download className="size-4" /> Export
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="size-4" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportLeads("csv")}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportLeads("xlsx")}>XLSX</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button size="sm" onClick={() => setShowCreate((prev) => !prev)}>
               <Plus className="size-4" /> New lead
             </Button>
@@ -824,10 +834,6 @@ function AddActivityForm({
       {disabled && <p className="text-xs text-muted-foreground">Read-only — trainee role.</p>}
     </div>
   );
-}
-
-function escapeCsv(value: string) {
-  return `"${String(value ?? "").replace(/"/g, '""')}"`;
 }
 
 function Field({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {

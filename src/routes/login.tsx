@@ -149,7 +149,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
           <div>
             <div className="text-sm font-semibold">DJ's Freight Broker LLC</div>
             <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-secondary)]">
-              Secure Agent Portal
+              Secure Agent Portal - TMS
             </div>
           </div>
         </div>

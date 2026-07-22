@@ -39,6 +39,7 @@ import {
   Printer,
   Receipt,
   User,
+  Download,
   CalendarDays,
   Percent,
   StickyNote,
@@ -51,6 +52,13 @@ import {
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 
 export const Route = createFileRoute("/_app/invoices")({ component: InvoicesPage });
 
@@ -449,6 +457,30 @@ function InvoicesPage() {
       return matchesSearch && matchesStatus;
     });
   }, [invoices, searchTerm, statusFilter]);
+
+  function exportInvoices(format: "csv" | "xlsx") {
+    const rows = filteredInvoices.length > 0 ? filteredInvoices : invoices;
+    const exported = exportRowsToFile(
+      rows,
+      [
+        { label: "Invoice #", getValue: (invoice) => invoice.invoiceNumber },
+        { label: "Customer", getValue: (invoice) => invoice.customerName },
+        { label: "Status", getValue: (invoice) => invoice.status },
+        { label: "Invoice Date", getValue: (invoice) => (invoice.invoiceDate ? fmtDate(invoice.invoiceDate) : "") },
+        { label: "Due Date", getValue: (invoice) => (invoice.dueDate ? fmtDate(invoice.dueDate) : "") },
+        { label: "Total", getValue: (invoice) => invoice.total },
+        { label: "Balance Due", getValue: (invoice) => invoice.balanceDue },
+        { label: "Amount Paid", getValue: (invoice) => invoice.amountPaid },
+      ],
+      formatExportFilename("invoices", format),
+      format,
+      "Invoices",
+    );
+
+    if (exported) {
+      toast.success("Invoices exported");
+    }
+  }
 
   // KPI calculations
   const kpis = useMemo(() => {
@@ -1036,9 +1068,22 @@ function InvoicesPage() {
         title="Invoices"
         description="Create, manage, and track invoices"
         actions={
-          <Button size="sm" onClick={openCreate} className="shadow-sm">
-            <Plus className="size-4 mr-2" /> New Invoice
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="size-4" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportInvoices("csv")}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportInvoices("xlsx")}>XLSX</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button size="sm" onClick={openCreate} className="shadow-sm">
+              <Plus className="size-4 mr-2" /> New Invoice
+            </Button>
+          </div>
         }
       />
 

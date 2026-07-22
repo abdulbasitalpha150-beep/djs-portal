@@ -68,6 +68,8 @@ function ActivityPage() {
   const [notes, setNotes] = useState("");
   const [history, setHistory] = useState<DailyLogRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkinModalOpen, setCheckinModalOpen] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   // Which history days are expanded to show full per-session detail. Collapsed
   // by default so a long history doesn't dump every session for every day at once.
@@ -81,6 +83,24 @@ function ActivityPage() {
   const parsedCalls = Number(callsInput) || 0;
   const parsedFollowups = Number(followupsInput) || 0;
   const hasMissingCheckoutInfo = parsedCalls <= 0 || parsedFollowups <= 0 || !notes.trim();
+
+  useEffect(() => {
+    if (!isCheckedIn) {
+      setElapsedSeconds(0);
+      return;
+    }
+
+    const startTime = checkedInAt ? new Date(checkedInAt).getTime() : Date.now();
+    const updateElapsed = () => {
+      const now = Date.now();
+      setElapsedSeconds(Math.max(0, Math.floor((now - startTime) / 1000)));
+    };
+
+    updateElapsed();
+    const intervalId = window.setInterval(updateElapsed, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [checkedInAt, isCheckedIn]);
 
   useEffect(() => {
     let active = true;
@@ -159,14 +179,11 @@ function ActivityPage() {
     }
   }
 
-  async function handleClockIn() {
-    const shouldStartNewSession = window.confirm(
-      "Start a new session? Add fresh calls, follow-ups, and notes for this session.",
-    );
-    if (!shouldStartNewSession) {
-      return;
-    }
+  function handleClockIn() {
+    setCheckinModalOpen(true);
+  }
 
+  async function confirmCheckIn() {
     try {
       const payload = await apiFetch<{ log: DailyLogRow; clockedIn: boolean }>(
         "/api/activity/clock-in",
@@ -184,6 +201,7 @@ function ActivityPage() {
         payload.data.log,
         ...prev.filter((item) => item.date !== payload.data.log.date),
       ]);
+      setCheckinModalOpen(false);
       toast.success("Checked in");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to check in.");
@@ -218,6 +236,7 @@ function ActivityPage() {
         payload.data.log,
         ...prev.filter((item) => item.date !== payload.data.log.date),
       ]);
+      setCheckoutModalOpen(false);
       toast.success("Checked out");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to check out.");
@@ -233,8 +252,52 @@ function ActivityPage() {
     });
   }
 
+  function formatElapsedTime(totalSeconds: number) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return [hours, minutes, seconds]
+      .map((value) => String(value).padStart(2, "0"))
+      .join(":");
+  }
+
   return (
     <div className="space-y-6">
+      <Dialog open={checkinModalOpen} onOpenChange={setCheckinModalOpen}>
+        <DialogContent className="sm:max-w-md border-border/70 bg-background/95 shadow-2xl">
+          <DialogHeader className="space-y-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Clock className="size-6" />
+            </div>
+            <DialogTitle className="text-xl font-semibold">Start a fresh session?</DialogTitle>
+            <DialogDescription className="text-sm leading-6 text-muted-foreground">
+              You&apos;re about to begin a new check-in session with a clean slate for calls,
+              follow-ups, and notes.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Today</span>
+              <span className="font-medium text-foreground">{fmtDate(new Date())}</span>
+            </div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              Your previous session will be closed and a new one will start from zero.
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setCheckinModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => { void confirmCheckIn(); }}>
+              Start session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={checkoutModalOpen} onOpenChange={setCheckoutModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -323,6 +386,31 @@ function ActivityPage() {
                 <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Session started</div>
                 <div className="mt-0.5 text-sm font-medium">{checkedInAt ? fmtDateTime(checkedInAt) : "Active session"}</div>
               </div>
+            <div className="relative overflow-hidden rounded-2xl border bg-card p-5">
+  <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
+
+  <div className="flex items-center justify-between">
+    <div>
+      <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+        Time Worked
+      </span>
+
+      <div className="mt-3 text-4xl font-bold font-mono">
+        {formatElapsedTime(elapsedSeconds)}
+      </div>
+
+      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600">
+        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+        Live Tracking
+      </div>
+    </div>
+
+    <div className="rounded-2xl bg-primary/10 p-4">
+      <Clock className="h-8 w-8 text-primary" />
+    </div>
+  </div>
+</div>
+
               <Button
                 variant="outline"
                 className="w-full sm:w-auto"

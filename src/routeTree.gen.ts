@@ -16,10 +16,12 @@ import { Route as LockedRouteImport } from './routes/locked'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppUserscopy2RouteImport } from './routes/_app.users copy 2'
 import { Route as AppUserscopyRouteImport } from './routes/_app.users copy'
 import { Route as AppUsersRouteImport } from './routes/_app.users'
 import { Route as AppTeamscopyRouteImport } from './routes/_app.teams copy'
 import { Route as AppTeamsRouteImport } from './routes/_app.teams'
+import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppQuotesRouteImport } from './routes/_app.quotes'
 import { Route as AppOnboardingRouteImport } from './routes/_app.onboarding'
@@ -76,6 +78,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppUserscopy2Route = AppUserscopy2RouteImport.update({
+  id: '/users copy 2',
+  path: '/users copy 2',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppUserscopyRoute = AppUserscopyRouteImport.update({
   id: '/users copy',
   path: '/users copy',
@@ -94,6 +101,11 @@ const AppTeamscopyRoute = AppTeamscopyRouteImport.update({
 const AppTeamsRoute = AppTeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSearchRoute = AppSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReportsRoute = AppReportsRouteImport.update({
@@ -230,10 +242,12 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AppOnboardingRoute
   '/quotes': typeof AppQuotesRoute
   '/reports': typeof AppReportsRoute
+  '/search': typeof AppSearchRoute
   '/teams': typeof AppTeamsRoute
   '/teams copy': typeof AppTeamscopyRoute
   '/users': typeof AppUsersRoute
   '/users copy': typeof AppUserscopyRoute
+  '/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -263,10 +277,12 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AppOnboardingRoute
   '/quotes': typeof AppQuotesRoute
   '/reports': typeof AppReportsRoute
+  '/search': typeof AppSearchRoute
   '/teams': typeof AppTeamsRoute
   '/teams copy': typeof AppTeamscopyRoute
   '/users': typeof AppUsersRoute
   '/users copy': typeof AppUserscopyRoute
+  '/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -298,10 +314,12 @@ export interface FileRoutesById {
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/quotes': typeof AppQuotesRoute
   '/_app/reports': typeof AppReportsRoute
+  '/_app/search': typeof AppSearchRoute
   '/_app/teams': typeof AppTeamsRoute
   '/_app/teams copy': typeof AppTeamscopyRoute
   '/_app/users': typeof AppUsersRoute
   '/_app/users copy': typeof AppUserscopyRoute
+  '/_app/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -333,10 +351,12 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/quotes'
     | '/reports'
+    | '/search'
     | '/teams'
     | '/teams copy'
     | '/users'
     | '/users copy'
+    | '/users copy 2'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -366,10 +386,12 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/quotes'
     | '/reports'
+    | '/search'
     | '/teams'
     | '/teams copy'
     | '/users'
     | '/users copy'
+    | '/users copy 2'
   id:
     | '__root__'
     | '/'
@@ -400,10 +422,12 @@ export interface FileRouteTypes {
     | '/_app/onboarding'
     | '/_app/quotes'
     | '/_app/reports'
+    | '/_app/search'
     | '/_app/teams'
     | '/_app/teams copy'
     | '/_app/users'
     | '/_app/users copy'
+    | '/_app/users copy 2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -467,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/users copy 2': {
+      id: '/_app/users copy 2'
+      path: '/users copy 2'
+      fullPath: '/users copy 2'
+      preLoaderRoute: typeof AppUserscopy2RouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/users copy': {
       id: '/_app/users copy'
       path: '/users copy'
@@ -493,6 +524,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof AppTeamsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/search': {
+      id: '/_app/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AppSearchRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/reports': {
@@ -667,10 +705,12 @@ interface AppRouteChildren {
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppQuotesRoute: typeof AppQuotesRoute
   AppReportsRoute: typeof AppReportsRoute
+  AppSearchRoute: typeof AppSearchRoute
   AppTeamsRoute: typeof AppTeamsRoute
   AppTeamscopyRoute: typeof AppTeamscopyRoute
   AppUsersRoute: typeof AppUsersRoute
   AppUserscopyRoute: typeof AppUserscopyRoute
+  AppUserscopy2Route: typeof AppUserscopy2Route
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -695,10 +735,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppOnboardingRoute: AppOnboardingRoute,
   AppQuotesRoute: AppQuotesRoute,
   AppReportsRoute: AppReportsRoute,
+  AppSearchRoute: AppSearchRoute,
   AppTeamsRoute: AppTeamsRoute,
   AppTeamscopyRoute: AppTeamscopyRoute,
   AppUsersRoute: AppUsersRoute,
   AppUserscopyRoute: AppUserscopyRoute,
+  AppUserscopy2Route: AppUserscopy2Route,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

@@ -3,6 +3,7 @@ import { connectDb } from "../lib/db";
 import { getSessionUserFromRequest, requireAuth } from "../lib/auth";
 import { jsonResponse, parseJson } from "../lib/api";
 import { Notification } from "../models/notification";
+import { cleanupOldNotifications } from "../lib/notification";
 
 type NotificationGroup = "today" | "yesterday" | "thisWeek" | "earlier";
 
@@ -118,7 +119,7 @@ export async function notificationsHandler(request: Request) {
   }
 
   // -------------------------------------------------------------------------
-  // POST: mark_read / mark_unread / delete / clear_all
+  // POST: mark_read / mark_unread / delete / clear_all / cleanup_old
   // -------------------------------------------------------------------------
   if (request.method === "POST") {
     const body = await parseJson(request);
@@ -129,19 +130,19 @@ export async function notificationsHandler(request: Request) {
       if (id) {
         await Notification.updateOne(
           { _id: new mongoose.Types.ObjectId(id), ...recipientFilter },
-          { $set: { isRead: true } },
+          { $set: { isRead: true, readAt: new Date() } },
         ).exec();
       } else {
         await Notification.updateMany(
           { ...recipientFilter, isRead: false },
-          { $set: { isRead: true } },
+          { $set: { isRead: true, readAt: new Date() } },
         ).exec();
       }
     } else if (action === "mark_unread") {
       if (id) {
         await Notification.updateOne(
           { _id: new mongoose.Types.ObjectId(id), ...recipientFilter },
-          { $set: { isRead: false } },
+          { $set: { isRead: false, readAt: null } },
         ).exec();
       }
     } else if (action === "delete") {
@@ -153,6 +154,15 @@ export async function notificationsHandler(request: Request) {
       }
     } else if (action === "clear_all") {
       await Notification.deleteMany(recipientFilter).exec();
+    } else if (action === "cleanup_old") {
+      // Delete old notifications (read >24h or unread >2 weeks)
+      const result = await cleanupOldNotifications();
+      return jsonResponse({ 
+        ok: true,
+        message: `Cleanup complete. Deleted ${result.deletedCount} notifications.`,
+        deletedCount: result.deletedCount,
+        details: result.details,
+      });
     } else {
       throw Object.assign(new Error(`Unknown action: ${action}`), { status: 400 });
     }

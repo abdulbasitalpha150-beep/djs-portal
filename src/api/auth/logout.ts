@@ -1,5 +1,5 @@
 import { connectDb } from "../../lib/db";
-import { getSessionUserFromRequest, requireAuth } from "../../lib/auth";
+import { getSessionUserFromRefreshToken, getSessionUserFromRequest } from "../../lib/auth";
 import { jsonResponse, errorResponse } from "../../lib/api";
 import { User } from "../../models/user";
 import { recordAudit } from "../../lib/audit";
@@ -18,7 +18,7 @@ function getClientIp(request: Request) {
 }
 
 export async function logoutHandler(request: Request) {
-  const user = await getSessionUserFromRequest(request);
+  const user = (await getSessionUserFromRequest(request)) ?? (await getSessionUserFromRefreshToken(request));
   if (user) {
     await connectDb();
     const dbUser = await User.findById(user.id).exec();

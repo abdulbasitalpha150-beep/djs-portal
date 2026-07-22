@@ -19,8 +19,15 @@ import { DataTable } from "@/components/data-table";
 import { relative } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 import { apiFetch } from "@/lib/api-client";
-import { Plus, Search, ClipboardList, CheckCircle2, Trash2 } from "lucide-react";
+import { Plus, Search, ClipboardList, CheckCircle2, Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 
 export const Route = createFileRoute("/_app/followups")({
   component: FollowupsPage,
@@ -193,17 +200,51 @@ function FollowupsPage() {
     return new Date(dueDate) < new Date() && !items.find((i) => i.dueDate === dueDate)?.isCompleted;
   };
 
+  function exportFollowUps(format: "csv" | "xlsx") {
+    const rows = filtered.length > 0 ? filtered : items;
+    const exported = exportRowsToFile(
+      rows,
+      [
+        { label: "Title", getValue: (item) => item.title },
+        { label: "Lead", getValue: (item) => item.leadName ?? item.leadId },
+        { label: "Priority", getValue: (item) => item.priority },
+        { label: "Due Date", getValue: (item) => item.dueDate },
+        { label: "Assigned To", getValue: (item) => item.assignedToName },
+        { label: "Status", getValue: (item) => (item.isCompleted ? "Completed" : "Pending") },
+        { label: "Notes", getValue: (item) => item.notes ?? "" },
+      ],
+      formatExportFilename("followups", format),
+      format,
+      "Follow-ups",
+    );
+
+    if (exported) {
+      toast.success("Follow-ups exported");
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
         title="Follow-ups"
         description="Manage your follow-up tasks and track due dates."
         actions={
-          <>
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="size-4" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportFollowUps("csv")}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportFollowUps("xlsx")}>XLSX</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button size="sm" onClick={() => setShowCreate((prev) => !prev)}>
               <Plus className="size-4" /> New follow-up
             </Button>
-          </>
+          </div>
         }
       />
 

@@ -39,18 +39,9 @@ export function signRefreshToken(userId: string) {
   });
 }
 
-export async function getSessionUserFromRequest(request: Request) {
-  const cookieHeader = request.headers.get("cookie") || "";
-  const tokenMatch = cookieHeader.match(/(?:^|; )accessToken=([^;]+)/);
-  if (!tokenMatch) {
-    return null;
-  }
-  const decoded = verifyJwt(decodeURIComponent(tokenMatch[1]));
-  if (!decoded || decoded.type !== "access") {
-    return null;
-  }
+async function loadSessionUser(userId: string): Promise<SessionUser | null> {
   await connectDb();
-  const user = (await User.findById(decoded.sub).lean().exec()) as
+  const user = (await User.findById(userId).lean().exec()) as
     | (typeof User & {
         _id: any;
         role: string;
@@ -71,6 +62,35 @@ export async function getSessionUserFromRequest(request: Request) {
     email: user.email,
     teamId: user.teamId ? user.teamId.toString() : undefined,
   } as SessionUser;
+}
+
+export async function getSessionUserFromRequest(request: Request) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const tokenMatch = cookieHeader.match(/(?:^|; )accessToken=([^;]+)/);
+  if (tokenMatch) {
+    const decoded = verifyJwt(decodeURIComponent(tokenMatch[1]));
+    if (decoded && decoded.type === "access") {
+      return loadSessionUser(decoded.sub);
+    }
+  }
+  return null;
+}
+
+export async function getSessionUserFromRefreshToken(request: Request) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const tokenMatch = cookieHeader.match(/(?:^|; )refreshToken=([^;]+)/);
+  if (!tokenMatch) {
+    return null;
+  }
+
+  const decoded = jwt.decode(decodeURIComponent(tokenMatch[1])) as
+    | { sub?: string; type?: string }
+    | null;
+  if (!decoded || decoded.type !== "refresh" || !decoded.sub) {
+    return null;
+  }
+
+  return loadSessionUser(decoded.sub);
 }
 
 export function requireAuth(user: SessionUser | null) {

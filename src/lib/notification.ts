@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Notification, type NotificationModule, type NotificationPriority } from "../models/notification";
+import { LoginHistory } from "../models/loginHistory";
 import { Team } from "../models/team";
 import { User } from "../models/user";
 import type { Role } from "./roles";
@@ -392,6 +393,85 @@ export async function emitSystemAlert(
     },
     sender,
   );
+}
+
+/**
+ * Cleanup old notifications. Deletes:
+ *  1. All read notifications older than 24 hours
+ *  2. All unread notifications older than 2 weeks
+ * 
+ * Returns the count of deleted documents.
+ * 
+ * This can be called:
+ *  - On-demand via an API endpoint
+ *  - Periodically via a cron job or scheduled task
+ *  - During off-peak hours to maintain database performance
+ */
+export async function cleanupOldNotifications(): Promise<{ deletedCount: number; details: { readNotifications: number; unreadNotifications: number } }> {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+    // Delete read notifications older than 24 hours
+    const readResult = await Notification.deleteMany({
+      isRead: true,
+      readAt: { $lt: twentyFourHoursAgo },
+    }).exec();
+
+    // Delete unread notifications older than 2 weeks
+    const unreadResult = await Notification.deleteMany({
+      isRead: false,
+      createdAt: { $lt: twoWeeksAgo },
+    }).exec();
+
+    const totalDeleted = readResult.deletedCount + unreadResult.deletedCount;
+    console.log(
+      `[notification] Cleanup complete: deleted ${readResult.deletedCount} old read notifications and ${unreadResult.deletedCount} old unread notifications (total: ${totalDeleted})`
+    );
+
+    return {
+      deletedCount: totalDeleted,
+      details: {
+        readNotifications: readResult.deletedCount,
+        unreadNotifications: unreadResult.deletedCount,
+      },
+    };
+  } catch (error) {
+    console.error("[notification] cleanupOldNotifications failed:", error);
+    return { deletedCount: 0, details: { readNotifications: 0, unreadNotifications: 0 } };
+  }
+}
+
+/**
+ * Legacy alias for backward compatibility. Use cleanupOldNotifications instead.
+ * @deprecated Use cleanupOldNotifications instead
+ */
+export async function cleanupOldReadNotifications(): Promise<{ deletedCount: number }> {
+  const result = await cleanupOldNotifications();
+  return { deletedCount: result.deletedCount };
+}
+
+/**
+ * Cleanup old session/login logs. Deletes all login history records
+ * older than 2 months to keep the database lean.
+ * 
+ * Returns the count of deleted documents.
+ */
+export async function cleanupOldSessionLogs(): Promise<{ deletedCount: number }> {
+  try {
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    const result = await LoginHistory.deleteMany({
+      createdAt: { $lt: twoMonthsAgo },
+    }).exec();
+
+    console.log(`[session-log] Cleanup complete: deleted ${result.deletedCount} old session logs`);
+    return { deletedCount: result.deletedCount };
+  } catch (error) {
+    console.error("[session-log] cleanupOldSessionLogs failed:", error);
+    return { deletedCount: 0 };
+  }
 }
 
 export { resolveActionUrl };

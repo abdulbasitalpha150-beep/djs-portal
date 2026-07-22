@@ -1088,7 +1088,7 @@ async function computeAgent(
       { label: "New Quote", href: "/quotes", icon: "file" },
       { label: "New Lead", href: "/leads", icon: "users" },
       { label: "New Follow-up", href: "/followups", icon: "calendar" },
-      { label: "My Documents", href: "/onboarding", icon: "folder" },
+      // { label: "My Documents", href: "/onboarding", icon: "folder" },
     ],
   };
 }
@@ -1156,8 +1156,8 @@ async function computeTrainee(
           { label: "New Lead", href: "/leads", icon: "users" },
         ]
       : [
-          { label: "Upload Document", href: "/onboarding", icon: "folder" },
-          { label: "View Training", href: "/onboarding", icon: "graduation" },
+          // { label: "Upload Document", href: "/onboarding", icon: "folder" },
+          // { label: "View Training", href: "/onboarding", icon: "graduation" },
           { label: "New Lead", href: "/leads", icon: "users" },
         ],
   };

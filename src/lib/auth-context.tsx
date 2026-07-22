@@ -12,10 +12,15 @@ type Session = {
   isTemporaryPassword?: boolean;
 };
 
+type SessionMonitorStatus = "active" | "paused" | "expired";
+
 type AuthContextValue = {
   session: Session | null;
   loading: boolean;
   clockedIn: boolean;
+  sessionStatus: SessionMonitorStatus;
+  sessionTimeRemainingMs: number | null;
+  lastActivityAt: number | null;
   signIn: (email: string, password: string) => Promise<void>;
   changePassword: (
     currentPassword: string,
@@ -46,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const raw = window.localStorage.getItem(LAST_ACTIVITY_STORAGE_KEY);
     return raw ? Number(raw) : null;
   });
+  const [sessionTimeRemainingMs, setSessionTimeRemainingMs] = useState<number | null>(null);
 
   const updateLastActivity = () => {
     const now = Date.now();
@@ -60,9 +66,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setClockedInState(false);
     setLastActivityAt(null);
+    setSessionTimeRemainingMs(null);
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(CLOCKED_IN_STORAGE_KEY);
       window.localStorage.removeItem(LAST_ACTIVITY_STORAGE_KEY);
+    }
+  };
+
+  const sendLogoutSignal = async (reason: "manual" | "timeout" | "unload" = "manual") => {
+    if (typeof window === "undefined") return;
+
+    try {
+      if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {
+        const payload = JSON.stringify({ reason });
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/api/auth/logout", blob);
+        return;
+      }
+
+      await apiFetch<{ message: string }>('/api/auth/logout', { method: "POST", keepalive: true });
+    } catch {
+      // Ignore logout errors; the local session will still be cleared.
     }
   };
 
@@ -123,40 +147,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, loading]);
 
   useEffect(() => {
-    if (!session || loading || clockedIn) return;
-
-    const last = lastActivityAt ?? Date.now();
-    const elapsed = Date.now() - last;
-    const remaining = SESSION_TIMEOUT_MS - elapsed;
-
-    if (remaining <= 0) {
-      void handleSignOut(true);
+    if (!session || loading || clockedIn) {
+      setSessionTimeRemainingMs(null);
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      void handleSignOut(true);
-    }, remaining);
+    const updateRemaining = () => {
+      const now = Date.now();
+      const last = lastActivityAt ?? now;
+      const remaining = Math.max(0, SESSION_TIMEOUT_MS - (now - last));
+      setSessionTimeRemainingMs(remaining);
 
-    return () => window.clearTimeout(timeoutId);
+      if (remaining <= 0) {
+        void sendLogoutSignal("timeout");
+        void handleSignOut(true);
+      }
+    };
+
+    updateRemaining();
+    const intervalId = window.setInterval(updateRemaining, 1000);
+
+    return () => window.clearInterval(intervalId);
   }, [session, loading, clockedIn, lastActivityAt]);
-
-  useEffect(() => {
-    if (!session || !clockedIn || loading) return;
-
-    return undefined;
-  }, [session, loading, clockedIn]);
 
   const effectiveSession = useMemo(() => {
     if (!session) return null;
     return roleOverride ? { ...session, role: roleOverride } : session;
   }, [session, roleOverride]);
 
+  const sessionStatus: SessionMonitorStatus = !effectiveSession
+    ? "expired"
+    : clockedIn
+      ? "paused"
+      : sessionTimeRemainingMs === 0
+        ? "expired"
+        : "active";
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session: effectiveSession,
       loading,
       clockedIn,
+      sessionStatus,
+      sessionTimeRemainingMs,
+      lastActivityAt,
       signIn: async (email: string, password: string) => {
         const payload = await apiFetch<{ user: Session }>("/api/auth/login", {
           method: "POST",
@@ -193,7 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateLastActivity();
       },
     }),
-    [effectiveSession, loading, clockedIn, handleSignOut],
+    [effectiveSession, loading, clockedIn, sessionStatus, sessionTimeRemainingMs, lastActivityAt, handleSignOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

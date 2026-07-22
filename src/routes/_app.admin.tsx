@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { apiFetch } from "@/lib/api-client";
+import { can, type Capability } from "@/lib/roles";
 import {
   Users,
   FolderOpen,
@@ -36,33 +37,55 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/admin")({ component: AdminPage });
 
-const TILES = [
+const TILES: Array<{
+  to: string;
+  icon: typeof Users;
+  label: string;
+  desc: string;
+  cap: Capability;
+}> = [
   {
     to: "/users",
     icon: Users,
     label: "Users & Roles",
     desc: "Provision agents, suspend access, manage roles.",
+    cap: "users",
   },
-  { to: "/invoices", icon: FolderOpen, label: "Invoices", desc: "Manage and track invoices." },
+  {
+    to: "/invoices",
+    icon: FolderOpen,
+    label: "Invoices",
+    desc: "Manage and track invoices.",
+    cap: "invoices",
+  },
   {
     to: "/approvals",
     icon: ClipboardCheck,
     label: "Approvals",
     desc: "Unified queue across customers, quotes, loads.",
+    cap: "approvals",
   },
   {
-    to: "/reports",
+    to: "/dashboard",
     icon: BarChart3,
     label: "Reports",
     desc: "Operational reports and KPI dashboards.",
+    cap: "reports",
   },
   {
     to: "/commissions",
     icon: DollarSign,
     label: "Commission Rules",
     desc: "Configure tier percentages and thresholds.",
+    cap: "commission_rules",
   },
-  { to: "/audit", icon: Shield, label: "Session Log", desc: "System-wide event log." },
+  {
+    to: "/audit",
+    icon: Shield,
+    label: "Session Log",
+    desc: "System-wide event log.",
+    cap: "audit",
+  },
 ];
 
 const SETTINGS_ROWS = [
@@ -78,7 +101,9 @@ function AdminPage() {
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [processing, setProcessing] = useState(false);
-  const canReset = session?.role === "admin";
+  const role = session?.role ?? "suspended";
+  const visibleTiles = TILES.filter((tile) => can(role, tile.cap));
+  const canReset = can(role, "admin");
 
   async function handleResetSystem() {
     if (!password || confirmation !== "RESET") return;
@@ -117,7 +142,7 @@ function AdminPage() {
 
       {/* Quick-access tiles */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {TILES.map((t) => (
+        {visibleTiles.map((t) => (
           <Link
             key={t.to}
             to={t.to}

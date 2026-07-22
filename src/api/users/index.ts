@@ -14,6 +14,7 @@ import {
 import { Team } from "../../models/team";
 import { LoginHistory } from "../../models/loginHistory";
 import { User, type EmploymentType, type UserStatus } from "../../models/user";
+import { ROLE_LABELS } from "../../lib/roles";
 
 const ROLE_ORDER = [
   "owner",
@@ -535,15 +536,20 @@ export async function usersHandler(request: Request) {
 
     // Role change notifications
     if (prevRole !== newRole) {
-      const isPromotion =
-        ROLE_ORDER.indexOf(newRole as (typeof ROLE_ORDER)[number]) >
-        ROLE_ORDER.indexOf(prevRole as (typeof ROLE_ORDER)[number]);
+      const prevRoleIndex = ROLE_ORDER.indexOf(prevRole as (typeof ROLE_ORDER)[number]);
+      const newRoleIndex = ROLE_ORDER.indexOf(newRole as (typeof ROLE_ORDER)[number]);
+      const isPromotion = newRoleIndex < prevRoleIndex;
+      const prettyPrevRole = ROLE_LABELS[prevRole as keyof typeof ROLE_LABELS] ?? prevRole.replace(/_/g, " ");
+      const prettyNewRole = ROLE_LABELS[newRole as keyof typeof ROLE_LABELS] ?? newRole.replace(/_/g, " ");
+      const prettyTitle = isPromotion ? "User promoted" : "User demoted";
+      const prettyMessage = `${targetName}'s role changed from ${prettyPrevRole} to ${prettyNewRole}.`;
+
       notifPromises.push(
         notifyUser(
           targetId,
           {
             title: "Your role has changed",
-            message: `Your role changed from ${prevRole} to ${newRole}.`,
+            message: `Your role changed from ${prettyPrevRole} to ${prettyNewRole}.`,
             notificationType: "role_changed",
             relatedModule: "user_management",
             recordType: "User",
@@ -556,8 +562,8 @@ export async function usersHandler(request: Request) {
         ),
         notifyAdmins(
           {
-            title: isPromotion ? "User promoted" : "User demoted",
-            message: `${targetName}'s role changed from ${prevRole} to ${newRole}.`,
+            title: prettyTitle,
+            message: prettyMessage,
             notificationType: isPromotion ? "user_promoted" : "user_demoted",
             relatedModule: "user_management",
             recordType: "User",

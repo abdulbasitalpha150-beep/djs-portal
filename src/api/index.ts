@@ -19,6 +19,7 @@ import { leadsListHandler } from "./leads/list";
 import { customersListHandler } from "./customers/list";
 import { loadsListHandler } from "./loads/list";
 import { resetSystemHandler } from "./admin/reset-system";
+import { cleanupHandler } from "./admin/cleanup";
 import { auditLogsHandler } from "./audit-logs";
 import { notificationsHandler } from "./notifications";
 import { kpiSummaryHandler } from "./notifications/kpi";
@@ -76,6 +77,7 @@ const routes: ApiRoute[] = [
   { method: "POST", pattern: /^\/api\/quotes$/, handler: quotesListHandler },
   { method: "PATCH", pattern: /^\/api\/quotes$/, handler: quotesListHandler },
   { method: "POST", pattern: /^\/api\/admin\/reset-system$/, handler: resetSystemHandler },
+  { method: "POST", pattern: /^\/api\/admin\/cleanup$/, handler: cleanupHandler },
   { method: "POST", pattern: /^\/api\/quotes\/([^/]+)\/approve$/, handler: quoteApproveHandler },
   { method: "GET", pattern: /^\/api\/audit-logs$/, handler: auditLogsHandler },
   { method: "GET", pattern: /^\/api\/dashboard$/, handler: dashboardHandler },

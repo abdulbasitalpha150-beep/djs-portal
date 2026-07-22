@@ -35,8 +35,15 @@ import { StatusBadge } from "@/components/status-badge";
 import { apiFetch } from "@/lib/api-client";
 import { fmtDate } from "@/lib/format";
 import { ROLE_LABELS } from "@/lib/roles";
-import { Plus, Save, Trash2, Edit2, Users, UsersRound, Loader2 } from "lucide-react";
+import { Plus, Save, Trash2, Edit2, Users, UsersRound, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_app/teams")({ component: TeamsPage });
@@ -218,6 +225,25 @@ function TeamsPage() {
     }
   };
 
+  function exportTeams(format: "csv" | "xlsx") {
+    const exported = exportRowsToFile(
+      items,
+      [
+        { label: "Name", getValue: (team) => team.name },
+        { label: "Manager", getValue: (team) => team.managerName ?? "" },
+        { label: "Members", getValue: (team) => team.totalMembers },
+        { label: "Created", getValue: (team) => (team.createdAt ? fmtDate(team.createdAt) : "") },
+      ],
+      formatExportFilename("teams", format),
+      format,
+      "Teams",
+    );
+
+    if (exported) {
+      toast.success("Teams exported");
+    }
+  }
+
   const getConfirmationMessage = () => {
     const selectedUser = users.find((u) => u.id === form.managerId);
     if (!selectedUser) return "";
@@ -232,18 +258,31 @@ function TeamsPage() {
         title="Teams"
         description="Coordinate managers and assigned users."
         actions={
-          canEditTeams ? (
-            <Button
-              size="sm"
-              className="w-full sm:w-auto"
-              onClick={() => {
-                setForm({ name: "", managerId: "" });
-                setShowCreate(true);
-              }}
-            >
-              <Plus className="size-4 mr-2" /> New team
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="size-4" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportTeams("csv")}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportTeams("xlsx")}>XLSX</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {canEditTeams ? (
+              <Button
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  setForm({ name: "", managerId: "" });
+                  setShowCreate(true);
+                }}
+              >
+                <Plus className="size-4 mr-2" /> New team
+              </Button>
+            ) : undefined}
+          </div>
         }
       />
 

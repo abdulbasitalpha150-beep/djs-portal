@@ -42,7 +42,15 @@ import {
   DollarSign,
   FileText,
   StickyNote,
+  Download,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 import { useAuth } from "@/lib/auth-context";
 import { apiFetch } from "@/lib/api-client";
 import { can } from "@/lib/roles";
@@ -946,6 +954,29 @@ function LoadsPage() {
     setEditForm((prev) => ({ ...prev, documents: newDocs }));
   }
 
+  function exportLoads(format: "csv" | "xlsx") {
+    const rows = filtered.length > 0 ? filtered : items;
+    const exported = exportRowsToFile(
+      rows,
+      [
+        { label: "Load #", getValue: (load) => load.loadNumber || load.ref },
+        { label: "Customer", getValue: (load) => load.customerName },
+        { label: "Carrier", getValue: (load) => load.carrierName },
+        { label: "Status", getValue: (load) => load.status },
+        { label: "Pickup", getValue: (load) => (load.pickupDate ? fmtDate(load.pickupDate) : "") },
+        { label: "Delivery", getValue: (load) => (load.deliveryDate ? fmtDate(load.deliveryDate) : "") },
+        { label: "Revenue", getValue: (load) => load.customerRate ?? 0 },
+      ],
+      formatExportFilename("loads", format),
+      format,
+      "Loads",
+    );
+
+    if (exported) {
+      toast.success("Loads exported");
+    }
+  }
+
   const createFinancials = useMemo(() => {
     const cr = Number(createForm.customerRate || 0);
     const cc = Number(createForm.carrierCost || 0);
@@ -972,9 +1003,22 @@ function LoadsPage() {
         title="Loads"
         description="Manage your full load booking pipeline from quote to commission ready"
         actions={
-          <Button size="sm" onClick={() => setShowCreate(true)} disabled={!canBook}>
-            <Plus className="size-4" /> New Load
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="size-4" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportLoads("csv")}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportLoads("xlsx")}>XLSX</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button size="sm" onClick={() => setShowCreate(true)} disabled={!canBook}>
+              <Plus className="size-4" /> New Load
+            </Button>
+          </div>
         }
       />
 

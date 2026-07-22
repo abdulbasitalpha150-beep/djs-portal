@@ -16,30 +16,8 @@ import {
 import { fmtDate } from "@/lib/format";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { apiFetch } from "@/lib/api-client";
-import {
-  Plus,
-  Search,
-  KeyRound,
-  Trash2,
-  Download,
-  Save,
-  Edit2,
-  Lock,
-  Loader2,
-  UserX,
-  Mail,
-  Phone as PhoneIcon,
-  Building2,
-  Clock,
-} from "lucide-react";
+import { Plus, Search, KeyRound, Trash2, Save, Edit2, Lock, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { exportRowsToFile, formatExportFilename } from "@/lib/export";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +39,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 
-export const Route = createFileRoute("/_app/users")({ component: UsersPage });
+export const Route = createFileRoute("/_app/users copy 2")({ component: UsersPage });
 
 type UserRow = {
   id: string;
@@ -131,21 +109,6 @@ const EMPTY_FORM: UserFormState = {
   employmentType: "",
 };
 
-function getInitials(name?: string | null) {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  const initials = parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0]?.slice(0, 2) ?? "?";
-  return initials.toUpperCase();
-}
-
-function Avatar({ name, size = "size-8" }: { name?: string | null; size?: string }) {
-  return (
-    <div className={`flex ${size} shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground`}>
-      {getInitials(name)}
-    </div>
-  );
-}
-
 /** Shared field set for the Create and Edit dialogs, so the two forms can't drift apart. */
 function UserFormFields({
   form,
@@ -159,149 +122,146 @@ function UserFormFields({
   mode: "create" | "edit";
 }) {
   return (
-    <div className="space-y-5">
-      <div className="space-y-3">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Contact info</div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="firstName">First name</Label>
-            <Input
-              id="firstName"
-              value={form.firstName}
-              onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="lastName">Last name</Label>
-            <Input
-              id="lastName"
-              value={form.lastName}
-              onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={form.username}
-              onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={form.email}
-              onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={form.phone}
-              onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-            />
-          </div>
-        </div>
+    <div className="grid gap-3 sm:grid-cols-2">
+      <div className="space-y-1.5">
+        <Label htmlFor="firstName">First name</Label>
+        <Input
+          id="firstName"
+          value={form.firstName}
+          onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))}
+        />
       </div>
-
-      <div className="space-y-3 border-t border-border pt-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Role & employment</div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>Role</Label>
-            <Select value={form.role} onValueChange={(value) => setForm((prev) => ({ ...prev, role: value }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(ROLE_LABELS).map(([key, value]) => (
-                  <SelectItem key={key} value={key}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Status</Label>
-            <Select value={form.status} onValueChange={(value) => setForm((prev) => ({ ...prev, status: value }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Team</Label>
-            <Select value={form.teamId} onValueChange={(value) => setForm((prev) => ({ ...prev, teamId: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select team" />
-              </SelectTrigger>
-              <SelectContent>
-                {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.id}>
-                    {team.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Employment Type</Label>
-            <Select
-              value={form.employmentType}
-              onValueChange={(value) => setForm((prev) => ({ ...prev, employmentType: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="commissionPercentage">Commission %</Label>
-            <Input
-              id="commissionPercentage"
-              type="number"
-              min="0"
-              max="100"
-              step="0.01"
-              value={form.commissionPercentage}
-              onChange={(event) => setForm((prev) => ({ ...prev, commissionPercentage: event.target.value }))}
-              placeholder="0-100"
-              className="sm:max-w-[calc(50%-0.375rem)]"
-            />
-          </div>
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="lastName">Last name</Label>
+        <Input
+          id="lastName"
+          value={form.lastName}
+          onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))}
+        />
       </div>
-
-      <div className="space-y-3 border-t border-border pt-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Security</div>
-        <div className="space-y-1.5">
-          <Label htmlFor="temporaryPassword">
-            {mode === "create" ? "Temporary password" : "Temporary password (leave blank to keep current)"}
-          </Label>
-          <Input
-            id="temporaryPassword"
-            value={form.temporaryPassword}
-            onChange={(event) => setForm((prev) => ({ ...prev, temporaryPassword: event.target.value }))}
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          value={form.username}
+          onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={form.email}
+          onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="phone">Phone</Label>
+        <Input
+          id="phone"
+          value={form.phone}
+          onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Role</Label>
+        <Select
+          value={form.role}
+          onValueChange={(value) => setForm((prev) => ({ ...prev, role: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(ROLE_LABELS).map(([key, value]) => (
+              <SelectItem key={key} value={key}>
+                {value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label>Status</Label>
+        <Select
+          value={form.status}
+          onValueChange={(value) => setForm((prev) => ({ ...prev, status: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label>Team</Label>
+        <Select
+          value={form.teamId}
+          onValueChange={(value) => setForm((prev) => ({ ...prev, teamId: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select team" />
+          </SelectTrigger>
+          <SelectContent>
+            {teams.map((team) => (
+              <SelectItem key={team.id} value={team.id}>
+                {team.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="commissionPercentage">Commission %</Label>
+        <Input
+          id="commissionPercentage"
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          value={form.commissionPercentage}
+          onChange={(event) =>
+            setForm((prev) => ({ ...prev, commissionPercentage: event.target.value }))
+          }
+          placeholder="0-100"
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Employment Type</Label>
+        <Select
+          value={form.employmentType}
+          onValueChange={(value) => setForm((prev) => ({ ...prev, employmentType: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5 sm:col-span-2">
+        <Label htmlFor="temporaryPassword">
+          {mode === "create" ? "Temporary password" : "Temporary password (leave blank to keep current)"}
+        </Label>
+        <Input
+          id="temporaryPassword"
+          value={form.temporaryPassword}
+          onChange={(event) =>
+            setForm((prev) => ({ ...prev, temporaryPassword: event.target.value }))
+          }
+        />
       </div>
     </div>
   );
@@ -379,7 +339,9 @@ function UsersPage() {
     try {
       const body = {
         ...form,
-        commissionPercentage: form.commissionPercentage ? parseFloat(form.commissionPercentage) : undefined,
+        commissionPercentage: form.commissionPercentage
+          ? parseFloat(form.commissionPercentage)
+          : undefined,
       };
       await apiFetch("/api/users", { method: "POST", body: JSON.stringify(body) });
       toast.success("User created");
@@ -398,7 +360,9 @@ function UsersPage() {
     try {
       const body = {
         ...updates,
-        commissionPercentage: updates.commissionPercentage ? parseFloat(updates.commissionPercentage) : undefined,
+        commissionPercentage: updates.commissionPercentage
+          ? parseFloat(updates.commissionPercentage)
+          : undefined,
       };
       await apiFetch("/api/users", { method: "PATCH", body: JSON.stringify({ userId, ...body }) });
       toast.success("User updated");
@@ -416,7 +380,9 @@ function UsersPage() {
     try {
       const body = {
         ...form,
-        commissionPercentage: form.commissionPercentage ? parseFloat(form.commissionPercentage) : undefined,
+        commissionPercentage: form.commissionPercentage
+          ? parseFloat(form.commissionPercentage)
+          : undefined,
       };
       await apiFetch("/api/users", {
         method: "PATCH",
@@ -478,30 +444,6 @@ function UsersPage() {
     }
   }
 
-  function exportUsers(format: "csv" | "xlsx") {
-    const rows = items.length > 0 ? items : [];
-    const exported = exportRowsToFile(
-      rows,
-      [
-        { label: "Name", getValue: (user) => user.name },
-        { label: "Email", getValue: (user) => user.email },
-        { label: "Role", getValue: (user) => user.role },
-        { label: "Commission %", getValue: (user) => user.commissionPercentage ?? "" },
-        { label: "Employment Type", getValue: (user) => user.employmentType ?? "" },
-        { label: "Team", getValue: (user) => user.team ?? "" },
-        { label: "Status", getValue: (user) => user.status },
-        { label: "Last Login", getValue: (user) => (user.lastLogin ? fmtDate(user.lastLogin) : "") },
-      ],
-      formatExportFilename("users", format),
-      format,
-      "Users",
-    );
-
-    if (exported) {
-      toast.success("Users exported");
-    }
-  }
-
   const hasActiveFilters = q !== "" || role !== "all" || status !== "all";
 
   return (
@@ -511,35 +453,10 @@ function UsersPage() {
         description="Manage agents, managers, and admin access."
         actions={
           canEditUsers ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Download className="size-4" /> Export
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => exportUsers("csv")}>CSV</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportUsers("xlsx")}>XLSX</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button size="sm" className="w-full sm:w-auto" onClick={() => setShowCreate(true)}>
-                <Plus className="size-4" /> New user
-              </Button>
-            </div>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Download className="size-4" /> Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => exportUsers("csv")}>CSV</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportUsers("xlsx")}>XLSX</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )
+            <Button size="sm" className="w-full sm:w-auto" onClick={() => setShowCreate(true)}>
+              <Plus className="size-4" /> New user
+            </Button>
+          ) : undefined
         }
       />
 
@@ -581,24 +498,10 @@ function UsersPage() {
         </Select>
       </div>
 
-      {!loading && items.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {items.length} {items.length === 1 ? "user" : "users"}
-        </p>
-      )}
-
       {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-              <div className="size-8 shrink-0 animate-pulse rounded-full bg-muted" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-1/4 animate-pulse rounded bg-muted" />
-                <div className="h-3 w-1/6 animate-pulse rounded bg-muted" />
-              </div>
-              <div className="h-5 w-16 animate-pulse rounded-full bg-muted" />
-            </div>
-          ))}
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card p-10 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          Loading users…
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card p-10 text-center">
@@ -644,8 +547,7 @@ function UsersPage() {
               {
                 head: "Name",
                 cell: (user) => (
-                  <div className="flex items-center gap-2.5">
-                    <Avatar name={user.name} size="size-7" />
+                  <div className="flex items-center gap-2">
                     <span className="font-medium">{user.name}</span>
                     {user.isTemporaryPassword && (
                       <Lock className="size-3.5 text-warning" aria-label="Temporary password" />
@@ -655,7 +557,9 @@ function UsersPage() {
               },
               {
                 head: "Email",
-                cell: (user) => <span className="text-xs text-muted-foreground">{user.email}</span>,
+                cell: (user) => (
+                  <span className="text-xs text-muted-foreground">{user.email}</span>
+                ),
               },
               {
                 head: "Role",
@@ -663,7 +567,9 @@ function UsersPage() {
               },
               {
                 head: "Commission %",
-                cell: (user) => <span className="text-sm">{user.commissionPercentage ?? "—"}</span>,
+                cell: (user) => (
+                  <span className="text-sm">{user.commissionPercentage ?? "—"}</span>
+                ),
               },
               {
                 head: "Employment Type",
@@ -674,13 +580,17 @@ function UsersPage() {
               {
                 head: "Last login",
                 cell: (user) => (
-                  <span className="text-xs text-muted-foreground">{user.lastLogin ? fmtDate(user.lastLogin) : "—"}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {user.lastLogin ? fmtDate(user.lastLogin) : "—"}
+                  </span>
                 ),
               },
               {
                 head: "Created",
                 cell: (user) => (
-                  <span className="text-xs text-muted-foreground">{user.createdAt ? fmtDate(user.createdAt) : "—"}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {user.createdAt ? fmtDate(user.createdAt) : "—"}
+                  </span>
                 ),
               },
               {
@@ -710,47 +620,26 @@ function UsersPage() {
           {open && (
             <>
               <SheetHeader>
-                <div className="flex items-center gap-3">
-                  <Avatar name={open.name} size="size-11" />
-                  <div className="min-w-0">
-                    <SheetTitle className="truncate">{open.name}</SheetTitle>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                        {ROLE_LABELS[open.role as Role]}
-                      </span>
-                      <StatusBadge value={open.status} />
-                    </div>
-                  </div>
-                </div>
+                <SheetTitle>{open.name}</SheetTitle>
               </SheetHeader>
               <div className="space-y-4 px-4 pb-6 pt-2 text-sm">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <div className="text-[10px] uppercase text-muted-foreground">Email</div>
-                    <div className="mt-0.5 flex items-center gap-1.5 break-all">
-                      <Mail className="size-3.5 shrink-0 text-muted-foreground" />
-                      {open.email}
-                    </div>
+                    <div className="mt-0.5 break-all">{open.email}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Phone</div>
-                    <div className="mt-0.5 flex items-center gap-1.5">
-                      <PhoneIcon className="size-3.5 shrink-0 text-muted-foreground" />
-                      {open.phone ?? "—"}
-                    </div>
+                    <div className="text-[10px] uppercase text-muted-foreground">Role</div>
+                    <div className="mt-0.5">{ROLE_LABELS[open.role as Role]}</div>
                   </div>
                   <div>
                     <div className="text-[10px] uppercase text-muted-foreground">Team</div>
-                    <div className="mt-0.5 flex items-center gap-1.5">
-                      <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
-                      {open.team ?? "—"}
-                    </div>
+                    <div className="mt-0.5">{open.team ?? "—"}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Last login</div>
-                    <div className="mt-0.5 flex items-center gap-1.5">
-                      <Clock className="size-3.5 shrink-0 text-muted-foreground" />
-                      {open.lastLogin ? fmtDate(open.lastLogin) : "—"}
+                    <div className="text-[10px] uppercase text-muted-foreground">Status</div>
+                    <div className="mt-0.5">
+                      <StatusBadge value={open.status} />
                     </div>
                   </div>
                   <div>
@@ -758,14 +647,29 @@ function UsersPage() {
                     <div className="mt-0.5">{open.commissionPercentage ?? "—"}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Employment Type</div>
+                    <div className="text-[10px] uppercase text-muted-foreground">
+                      Employment Type
+                    </div>
                     <div className="mt-0.5">{open.employmentType ?? "—"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-muted-foreground">Phone</div>
+                    <div className="mt-0.5">{open.phone ?? "—"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-muted-foreground">Last login</div>
+                    <div className="mt-0.5">
+                      {open.lastLogin ? fmtDate(open.lastLogin) : "—"}
+                    </div>
                   </div>
                 </div>
                 {canEditUsers && (
                   <div className="space-y-2 rounded-md border border-border p-3">
                     <Label>Role</Label>
-                    <Select value={open.role} onValueChange={(value) => void updateUser(open.id, { role: value })}>
+                    <Select
+                      value={open.role}
+                      onValueChange={(value) => void updateUser(open.id, { role: value })}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -778,7 +682,10 @@ function UsersPage() {
                       </SelectContent>
                     </Select>
                     <Label>Status</Label>
-                    <Select value={open.status} onValueChange={(value) => void updateUser(open.id, { status: value })}>
+                    <Select
+                      value={open.status}
+                      onValueChange={(value) => void updateUser(open.id, { status: value })}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -794,24 +701,32 @@ function UsersPage() {
                 )}
                 {canEditUsers && (
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => void resetPassword(open.id)}>
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      onClick={() => void resetPassword(open.id)}
+                    >
                       <KeyRound className="size-4" /> Reset password
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="outline" className="w-full text-destructive hover:text-destructive sm:w-auto">
+                        <Button variant="outline" className="w-full sm:w-auto">
                           <Trash2 className="size-4" /> Delete
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete {open.name}?</AlertDialogTitle>
-                          <AlertDialogDescription>This action removes the user record from the database.</AlertDialogDescription>
+                          <AlertDialogDescription>
+                            This action removes the user record from the database.
+                          </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row">
-                          <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="w-full sm:w-auto">
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
-                            className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 sm:w-auto"
+                            className="w-full sm:w-auto"
                             onClick={() => void remove(open.id)}
                           >
                             Delete
@@ -828,34 +743,48 @@ function UsersPage() {
       </Sheet>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Create user</DialogTitle>
           </DialogHeader>
           <UserFormFields form={form} setForm={setForm} teams={teams} mode="create" />
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowCreate(false)}>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setShowCreate(false)}
+            >
               Cancel
             </Button>
             <Button className="w-full sm:w-auto" onClick={() => void saveUser()} disabled={saving}>
-              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} {saving ? "Saving…" : "Create user"}
+              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{" "}
+              {saving ? "Saving…" : "Create user"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit user</DialogTitle>
           </DialogHeader>
           <UserFormFields form={form} setForm={setForm} teams={teams} mode="edit" />
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowEdit(false)}>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setShowEdit(false)}
+            >
               Cancel
             </Button>
-            <Button className="w-full sm:w-auto" onClick={() => void saveEditedUser()} disabled={saving}>
-              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} {saving ? "Saving…" : "Save changes"}
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => void saveEditedUser()}
+              disabled={saving}
+            >
+              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{" "}
+              {saving ? "Saving…" : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

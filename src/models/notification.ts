@@ -134,6 +134,7 @@ export interface NotificationDocument extends mongoose.Document {
   recordId?: mongoose.Types.ObjectId;
   priority: NotificationPriority;
   isRead: boolean;
+  readAt?: Date;
   actionUrl?: string;
   metadata?: Record<string, unknown>;
   createdAt: Date;
@@ -174,6 +175,7 @@ const notificationSchema = new mongoose.Schema<NotificationDocument>(
       default: "medium",
     },
     isRead: { type: Boolean, required: true, default: false, index: true },
+    readAt: { type: Date, required: false, index: true },
     actionUrl: { type: String, required: false, trim: true },
     metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
