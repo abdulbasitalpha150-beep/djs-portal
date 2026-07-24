@@ -102,7 +102,7 @@ function NotifsPage() {
     <div className="space-y-5">
       <PageHeader
         title="Notifications"
-        description="System alerts, follow-ups, KPI summaries, and event notifications."
+        description="System alerts, follow-ups and event notifications."
         actions={
           <>
             {unreadCount > 0 && (

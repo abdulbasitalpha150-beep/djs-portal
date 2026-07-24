@@ -337,7 +337,7 @@ function LeadsPage() {
     <div className="space-y-5">
       <PageHeader
         title="Leads"
-        description="Prospects in your pipeline. Auto-scoped to your records when viewing as an agent."
+        description="Manage and track your leads."
         actions={
           <>
             <DropdownMenu>

@@ -16,17 +16,13 @@ import { Route as LockedRouteImport } from './routes/locked'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppUserscopy2RouteImport } from './routes/_app.users copy 2'
-import { Route as AppUserscopyRouteImport } from './routes/_app.users copy'
 import { Route as AppUsersRouteImport } from './routes/_app.users'
-import { Route as AppTeamscopyRouteImport } from './routes/_app.teams copy'
 import { Route as AppTeamsRouteImport } from './routes/_app.teams'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppQuotesRouteImport } from './routes/_app.quotes'
 import { Route as AppOnboardingRouteImport } from './routes/_app.onboarding'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
-import { Route as AppLoadscopyRouteImport } from './routes/_app.loads copy'
 import { Route as AppLoadsRouteImport } from './routes/_app.loads'
 import { Route as AppLeadsRouteImport } from './routes/_app.leads'
 import { Route as AppInvoicesRouteImport } from './routes/_app.invoices'
@@ -37,11 +33,8 @@ import { Route as AppCustomersRouteImport } from './routes/_app.customers'
 import { Route as AppCommissionsRouteImport } from './routes/_app.commissions'
 import { Route as AppCarriersRouteImport } from './routes/_app.carriers'
 import { Route as AppAuditRouteImport } from './routes/_app.audit'
-import { Route as AppApprovalscopyRouteImport } from './routes/_app.approvals copy'
 import { Route as AppApprovalsRouteImport } from './routes/_app.approvals'
-import { Route as AppAdmincopyRouteImport } from './routes/_app.admin copy'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
-import { Route as AppActivitycopyRouteImport } from './routes/_app.activity copy'
 import { Route as AppActivityRouteImport } from './routes/_app.activity'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -78,24 +71,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppUserscopy2Route = AppUserscopy2RouteImport.update({
-  id: '/users copy 2',
-  path: '/users copy 2',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppUserscopyRoute = AppUserscopyRouteImport.update({
-  id: '/users copy',
-  path: '/users copy',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppUsersRoute = AppUsersRouteImport.update({
   id: '/users',
   path: '/users',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppTeamscopyRoute = AppTeamscopyRouteImport.update({
-  id: '/teams copy',
-  path: '/teams copy',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTeamsRoute = AppTeamsRouteImport.update({
@@ -126,11 +104,6 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLoadscopyRoute = AppLoadscopyRouteImport.update({
-  id: '/loads copy',
-  path: '/loads copy',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLoadsRoute = AppLoadsRouteImport.update({
@@ -183,29 +156,14 @@ const AppAuditRoute = AppAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AppRoute,
 } as any)
-const AppApprovalscopyRoute = AppApprovalscopyRouteImport.update({
-  id: '/approvals copy',
-  path: '/approvals copy',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppApprovalsRoute = AppApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdmincopyRoute = AppAdmincopyRouteImport.update({
-  id: '/admin copy',
-  path: '/admin copy',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppActivitycopyRoute = AppActivitycopyRouteImport.update({
-  id: '/activity copy',
-  path: '/activity copy',
   getParentRoute: () => AppRoute,
 } as any)
 const AppActivityRoute = AppActivityRouteImport.update({
@@ -222,11 +180,8 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activity': typeof AppActivityRoute
-  '/activity copy': typeof AppActivitycopyRoute
   '/admin': typeof AppAdminRoute
-  '/admin copy': typeof AppAdmincopyRoute
   '/approvals': typeof AppApprovalsRoute
-  '/approvals copy': typeof AppApprovalscopyRoute
   '/audit': typeof AppAuditRoute
   '/carriers': typeof AppCarriersRoute
   '/commissions': typeof AppCommissionsRoute
@@ -237,17 +192,13 @@ export interface FileRoutesByFullPath {
   '/invoices': typeof AppInvoicesRoute
   '/leads': typeof AppLeadsRoute
   '/loads': typeof AppLoadsRoute
-  '/loads copy': typeof AppLoadscopyRoute
   '/notifications': typeof AppNotificationsRoute
   '/onboarding': typeof AppOnboardingRoute
   '/quotes': typeof AppQuotesRoute
   '/reports': typeof AppReportsRoute
   '/search': typeof AppSearchRoute
   '/teams': typeof AppTeamsRoute
-  '/teams copy': typeof AppTeamscopyRoute
   '/users': typeof AppUsersRoute
-  '/users copy': typeof AppUserscopyRoute
-  '/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,11 +208,8 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activity': typeof AppActivityRoute
-  '/activity copy': typeof AppActivitycopyRoute
   '/admin': typeof AppAdminRoute
-  '/admin copy': typeof AppAdmincopyRoute
   '/approvals': typeof AppApprovalsRoute
-  '/approvals copy': typeof AppApprovalscopyRoute
   '/audit': typeof AppAuditRoute
   '/carriers': typeof AppCarriersRoute
   '/commissions': typeof AppCommissionsRoute
@@ -272,17 +220,13 @@ export interface FileRoutesByTo {
   '/invoices': typeof AppInvoicesRoute
   '/leads': typeof AppLeadsRoute
   '/loads': typeof AppLoadsRoute
-  '/loads copy': typeof AppLoadscopyRoute
   '/notifications': typeof AppNotificationsRoute
   '/onboarding': typeof AppOnboardingRoute
   '/quotes': typeof AppQuotesRoute
   '/reports': typeof AppReportsRoute
   '/search': typeof AppSearchRoute
   '/teams': typeof AppTeamsRoute
-  '/teams copy': typeof AppTeamscopyRoute
   '/users': typeof AppUsersRoute
-  '/users copy': typeof AppUserscopyRoute
-  '/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -294,11 +238,8 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_app/activity': typeof AppActivityRoute
-  '/_app/activity copy': typeof AppActivitycopyRoute
   '/_app/admin': typeof AppAdminRoute
-  '/_app/admin copy': typeof AppAdmincopyRoute
   '/_app/approvals': typeof AppApprovalsRoute
-  '/_app/approvals copy': typeof AppApprovalscopyRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/carriers': typeof AppCarriersRoute
   '/_app/commissions': typeof AppCommissionsRoute
@@ -309,17 +250,13 @@ export interface FileRoutesById {
   '/_app/invoices': typeof AppInvoicesRoute
   '/_app/leads': typeof AppLeadsRoute
   '/_app/loads': typeof AppLoadsRoute
-  '/_app/loads copy': typeof AppLoadscopyRoute
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/quotes': typeof AppQuotesRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/teams': typeof AppTeamsRoute
-  '/_app/teams copy': typeof AppTeamscopyRoute
   '/_app/users': typeof AppUsersRoute
-  '/_app/users copy': typeof AppUserscopyRoute
-  '/_app/users copy 2': typeof AppUserscopy2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -331,11 +268,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/activity'
-    | '/activity copy'
     | '/admin'
-    | '/admin copy'
     | '/approvals'
-    | '/approvals copy'
     | '/audit'
     | '/carriers'
     | '/commissions'
@@ -346,17 +280,13 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/leads'
     | '/loads'
-    | '/loads copy'
     | '/notifications'
     | '/onboarding'
     | '/quotes'
     | '/reports'
     | '/search'
     | '/teams'
-    | '/teams copy'
     | '/users'
-    | '/users copy'
-    | '/users copy 2'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -366,11 +296,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/activity'
-    | '/activity copy'
     | '/admin'
-    | '/admin copy'
     | '/approvals'
-    | '/approvals copy'
     | '/audit'
     | '/carriers'
     | '/commissions'
@@ -381,17 +308,13 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/leads'
     | '/loads'
-    | '/loads copy'
     | '/notifications'
     | '/onboarding'
     | '/quotes'
     | '/reports'
     | '/search'
     | '/teams'
-    | '/teams copy'
     | '/users'
-    | '/users copy'
-    | '/users copy 2'
   id:
     | '__root__'
     | '/'
@@ -402,11 +325,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/_app/activity'
-    | '/_app/activity copy'
     | '/_app/admin'
-    | '/_app/admin copy'
     | '/_app/approvals'
-    | '/_app/approvals copy'
     | '/_app/audit'
     | '/_app/carriers'
     | '/_app/commissions'
@@ -417,17 +337,13 @@ export interface FileRouteTypes {
     | '/_app/invoices'
     | '/_app/leads'
     | '/_app/loads'
-    | '/_app/loads copy'
     | '/_app/notifications'
     | '/_app/onboarding'
     | '/_app/quotes'
     | '/_app/reports'
     | '/_app/search'
     | '/_app/teams'
-    | '/_app/teams copy'
     | '/_app/users'
-    | '/_app/users copy'
-    | '/_app/users copy 2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -491,32 +407,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/users copy 2': {
-      id: '/_app/users copy 2'
-      path: '/users copy 2'
-      fullPath: '/users copy 2'
-      preLoaderRoute: typeof AppUserscopy2RouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/users copy': {
-      id: '/_app/users copy'
-      path: '/users copy'
-      fullPath: '/users copy'
-      preLoaderRoute: typeof AppUserscopyRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/users': {
       id: '/_app/users'
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof AppUsersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/teams copy': {
-      id: '/_app/teams copy'
-      path: '/teams copy'
-      fullPath: '/teams copy'
-      preLoaderRoute: typeof AppTeamscopyRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/teams': {
@@ -559,13 +454,6 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AppNotificationsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/loads copy': {
-      id: '/_app/loads copy'
-      path: '/loads copy'
-      fullPath: '/loads copy'
-      preLoaderRoute: typeof AppLoadscopyRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/loads': {
@@ -638,13 +526,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/approvals copy': {
-      id: '/_app/approvals copy'
-      path: '/approvals copy'
-      fullPath: '/approvals copy'
-      preLoaderRoute: typeof AppApprovalscopyRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/approvals': {
       id: '/_app/approvals'
       path: '/approvals'
@@ -652,25 +533,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppApprovalsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/admin copy': {
-      id: '/_app/admin copy'
-      path: '/admin copy'
-      fullPath: '/admin copy'
-      preLoaderRoute: typeof AppAdmincopyRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AppAdminRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/activity copy': {
-      id: '/_app/activity copy'
-      path: '/activity copy'
-      fullPath: '/activity copy'
-      preLoaderRoute: typeof AppActivitycopyRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/activity': {
@@ -685,11 +552,8 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
-  AppActivitycopyRoute: typeof AppActivitycopyRoute
   AppAdminRoute: typeof AppAdminRoute
-  AppAdmincopyRoute: typeof AppAdmincopyRoute
   AppApprovalsRoute: typeof AppApprovalsRoute
-  AppApprovalscopyRoute: typeof AppApprovalscopyRoute
   AppAuditRoute: typeof AppAuditRoute
   AppCarriersRoute: typeof AppCarriersRoute
   AppCommissionsRoute: typeof AppCommissionsRoute
@@ -700,26 +564,19 @@ interface AppRouteChildren {
   AppInvoicesRoute: typeof AppInvoicesRoute
   AppLeadsRoute: typeof AppLeadsRoute
   AppLoadsRoute: typeof AppLoadsRoute
-  AppLoadscopyRoute: typeof AppLoadscopyRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppQuotesRoute: typeof AppQuotesRoute
   AppReportsRoute: typeof AppReportsRoute
   AppSearchRoute: typeof AppSearchRoute
   AppTeamsRoute: typeof AppTeamsRoute
-  AppTeamscopyRoute: typeof AppTeamscopyRoute
   AppUsersRoute: typeof AppUsersRoute
-  AppUserscopyRoute: typeof AppUserscopyRoute
-  AppUserscopy2Route: typeof AppUserscopy2Route
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppActivityRoute: AppActivityRoute,
-  AppActivitycopyRoute: AppActivitycopyRoute,
   AppAdminRoute: AppAdminRoute,
-  AppAdmincopyRoute: AppAdmincopyRoute,
   AppApprovalsRoute: AppApprovalsRoute,
-  AppApprovalscopyRoute: AppApprovalscopyRoute,
   AppAuditRoute: AppAuditRoute,
   AppCarriersRoute: AppCarriersRoute,
   AppCommissionsRoute: AppCommissionsRoute,
@@ -730,17 +587,13 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvoicesRoute: AppInvoicesRoute,
   AppLeadsRoute: AppLeadsRoute,
   AppLoadsRoute: AppLoadsRoute,
-  AppLoadscopyRoute: AppLoadscopyRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppQuotesRoute: AppQuotesRoute,
   AppReportsRoute: AppReportsRoute,
   AppSearchRoute: AppSearchRoute,
   AppTeamsRoute: AppTeamsRoute,
-  AppTeamscopyRoute: AppTeamscopyRoute,
   AppUsersRoute: AppUsersRoute,
-  AppUserscopyRoute: AppUserscopyRoute,
-  AppUserscopy2Route: AppUserscopy2Route,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
