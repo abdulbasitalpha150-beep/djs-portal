@@ -1,0 +1,707 @@
+PORTAL-M1
+=========
+
+TMS Portal — Reverse-Engineered Project Documentation
+======================================================
+
+Document status
+---------------
+This document is based primarily on the live implementation in the repository as of 2026-07-25. Where the docs folder contains guidance or seed data, that has been treated as supplemental context. If a docs-file statement conflicts with current code, the current implementation is described as the authoritative behavior.
+
+Important note about secrets
+----------------------------
+This document explains configuration purpose only. It does not expose secrets, passwords, API keys, or tokens.
+
+1. Project Overview
+-------------------
+The project is a web-based Transportation Management System (TMS) client portal for a freight brokerage environment. It is designed to support a brokerage operating across lead generation, customer onboarding, quote approval, carrier management, load execution, invoicing, commissions, notifications, and admin oversight.
+
+The portal appears to be a full-featured internal operations platform rather than a single-purpose CRM. The codebase supports both CRM-style workflows (leads, customers, follow-ups) and TMS-style operations (loads, invoices, carrier records, commissions).
+
+Primary business problem solved
+- Organize and track freight-related opportunities and operations from intake to settlement.
+- Provide role-based visibility so agents, team managers, operations personnel, accounting, and administrators can work within the same system without exposing irrelevant data.
+- Enforce approval workflows for sensitive actions such as creating or changing records.
+- Maintain auditability with activity logging and notification records.
+
+Primary users
+- Internal agents and sales representatives
+- Team managers and lead agents
+- Operations managers and administrators
+- Accounting personnel
+- Client-facing or internal stakeholders reviewing status and approvals
+
+Architecture summary
+- Frontend: React with TanStack Router and TanStack Start.
+- Backend/API layer: custom request router in the server entry, handling API routes directly from the application server.
+- Database: MongoDB via Mongoose models.
+- Authentication: JWT access/refresh cookies plus server-side session validation.
+- UI pattern: component-based React UI with shadcn-style primitives and Tailwind.
+- State/data access: React Query is configured for routing context, and API calls are made directly through a custom apiFetch helper.
+
+Hosting assumptions
+- The app is structured for a Node.js/Vercel-style deployment with Nitro/Vite Start configuration.
+- The server expects environment variables for MongoDB and JWT secrets.
+- The frontend and API are served through the same application entrypoint and route handling system.
+
+2. Complete Feature List
+------------------------
+The application implements the following feature areas:
+
+Core portal features
+- User authentication and session restoration
+- Password change enforcement for temporary-password users
+- Role-based navigation and access control
+- Dashboard analytics by role
+- Lead management with status and pipeline tracking
+- Customer management
+- Quote request creation and approval
+- Carrier management and review flow
+- Load management with operational statuses and financial values
+- Invoice management
+- Commission tracking and payout status
+- Follow-up task management
+- Activity logging and audit history
+- Notifications and KPI summaries
+- Admin controls for users, teams, and system maintenance
+- Data export from several record pages
+- Temporary account suspension handling
+
+Feature access notes
+- Some features are visible only based on role capability matrix and route configuration.
+- Approvals are enforced for lower-privilege roles such as agents and trainees on certain records.
+- Accounting and suspended users receive restricted navigation and different dashboards.
+
+3. User Roles
+--------------
+The role system is defined in src/lib/roles.ts. Roles include:
+- owner
+- admin
+- ops_manager
+- team_manager
+- leadagent
+- agent
+- trainee
+- accounting
+- suspended
+
+Role summaries
+- owner: full access; can manage everything including users, teams, and admin operations.
+- admin: full access similar to owner with admin-specific controls.
+- ops_manager: broad operational access, approvals, dashboard, reports, notifications, bookings, and activity.
+- team_manager: scoped visibility to their team; can access team-level records and approvals.
+- leadagent: similar to team managers for operational workflows, with team-centric visibility.
+- agent: can work with leads, customers, quotes, carriers, loads, documents, commissions, activity, notifications, and follow-ups, but has more restricted approval abilities and record ownership scope.
+- trainee: read-heavy and limited; can view many domains but is more restricted than agents in write actions.
+- accounting: focused on commissions, invoices, reports, notifications, documents, and dashboards.
+- suspended: no meaningful access; UI displays a suspended account screen.
+
+Role capability matrix
+- The app uses a capability matrix rather than hard-coded route checks alone.
+- Capabilities include dashboard, leads, customers, quotes, carriers, loads, documents, onboarding, commissions, invoices, activity, approvals, reports, notifications, users, teams, audit, admin, booking_actions, approval_actions, commission_rules, and followups.
+- The navigation shell filters menu items based on this capability matrix.
+
+4. Application Navigation
+------------------------
+The application routes are defined in src/routes. The app is organized under a protected app shell route and a set of child routes.
+
+Primary routes
+- /login: login page
+- /forgot-password: password reset initiation page
+- /reset-password: password reset page
+- /locked: locked session or account state page
+- /dashboard: dashboard landing page
+- /approvals: approval queue
+- /activity: daily activity tracking
+- /notifications: notifications center
+- /leads: lead management page
+- /followups: follow-up management
+- /customers: customer management
+- /quotes: quote management
+- /carriers: carrier records and vetting
+- /loads: load operations and financial tracking
+- /commissions: commission views and summaries
+- /invoices: invoice management
+- /users: user management
+- /teams: team management
+- /audit: session or audit log view
+- /admin: administrative tools
+- /profile: user profile page
+- /search: searches across records
+
+Navigation behavior
+- The protected app shell redirects unauthenticated users to /login.
+- The sidebar is role-aware and hides nav items blocked by capability checks.
+- The app shell also supports a global search experience and a role switcher for local testing.
+
+5. End-to-End Workflow
+----------------------
+Current implementation flow, as reflected by the codebase:
+
+1. Login
+   - User submits email and password to /api/auth/login.
+   - Server validates the credentials, checks that the account is active, and sets auth cookies.
+   - The client stores a session in the auth context and restores it on refresh.
+
+2. Dashboard
+   - The dashboard loads from /api/dashboard.
+   - The API calculates role-based metrics from MongoDB collections such as leads, quotes, loads, customers, carriers, invoices, commissions, notifications, approvals, follow-ups, and onboarding documents.
+   - Different roles receive different KPI sets and widgets.
+
+3. Lead and customer management
+   - Agents or managers create leads and customers.
+   - Leads can be edited, reassigned, and tracked through a pipeline stage history.
+   - Lower-privilege users may create leads through an approval request rather than a direct persistence action.
+
+4. Quotes and approvals
+   - Quotes are modeled by QuoteRequest and support approval status.
+   - Lower-level users create records that require approval; approvers can approve, reject, or request changes.
+   - Approval outcomes produce notifications and can persist the underlying record if approved.
+
+5. Carriers and loads
+   - Carriers can be created and progressed through vetting statuses.
+   - Loads represent freight transactions and include pickup/delivery data, financial information, shipment details, documents, and statuses.
+   - Loads are central to the TMS workflow and are used in dashboards, commissions, invoicing, and reporting.
+
+6. Invoices and commissions
+   - Invoices are created from billing snapshots and include line items, totals, payments, and status.
+   - Commissions are tracked separately from loads and include payout status and month/year.
+
+7. Follow-ups and activity
+   - Activity records and follow-ups are used for accountability and task planning.
+   - Notifications are emitted for approval outcomes, comments, and system events.
+
+8. Admin operations
+   - Administrators can manage users, teams, and system reset/cleanup functions.
+   - Audit logs record authentication and other actions.
+
+6. Module Documentation
+-----------------------
+Leads
+- Purpose: track potential freight customers or prospects.
+- Key fields include company name, contact info, status, pipeline stage, owner/agent, notes, and pipeline history.
+- Business behavior: duplicate company name checks are enforced for new leads.
+- Approval behavior: agents and trainees can create leads that enter an approval state first.
+- Data relationships: ownerId links to a user, and reassignment history records ownership changes.
+
+Customers
+- Purpose: represent business customers that have been accepted into the system.
+- Supported statuses: submitted, review, approved, rejected.
+- Credit flow: customer credit status is tracked separately (pending, approved, rejected).
+- Used as a key dependency for invoice and load work.
+
+Quotes
+- Purpose: represent freight pricing opportunities between customer and carrier.
+- Fields include lane, equipment type, commodity, customer rate, carrier cost, margin amount, margin percent, notes, approval status, expiry, and win/loss reason.
+- Margin is auto-calculated as customerRate - carrierCost, and margin percent is derived from the margin ratio.
+- Approval flow is implemented around quote requests.
+
+Carriers
+- Purpose: maintain carrier vendor records and vetting information.
+- Carriers have legal name, MC/DOT numbers, contact info, address, equipment types, service areas, insurance details, review history, and vetting checks.
+- Review lifecycle includes pending, under_review, approved, rejected, or suspended.
+
+Loads
+- Purpose: represent the operational freight shipment lifecycle.
+- Fields include quote request linkage, agent, customer, carrier, pickup/delivery details, shipment properties, pricing, margins, invoice/payment status, and document status flags.
+- Data is central to dashboards, commissions, invoice generation, and operational tracking.
+- Statuses include draft, quoted, booked, dispatched, in_transit, delivered, invoiced, paid, cancelled.
+
+Invoices
+- Purpose: bill customers for freight transactions.
+- Invoices include billing snapshot values, line items, financial totals, payment history, and status.
+- Statuses include draft, sent, partially_paid, paid, overdue, cancelled.
+
+Commissions
+- Purpose: calculate and track agent commissions.
+- Each commission record links to an agent and load and stores gross margin, tier, percent, amount, payout status, and month/year.
+
+Follow-ups
+- Purpose: assign tasks to users for maintaining client relationships.
+- Fields include lead/customer linkage, due date, priority, notes, and completion state.
+
+Activity and audit
+- Activity logs are used for accountability, tracking events, and notification context.
+- Audit events are recorded for login, logout, password changes, and other actions.
+
+Documents and onboarding
+- The codebase includes onboarding-related models and routes, though the current navigation has some of these modules commented out in the sidebar.
+- Documentation and training requirements appear to be partially wired in.
+
+7. Database Documentation
+-------------------------
+The database layer is MongoDB with Mongoose. The main collections/models include:
+
+User
+- Purpose: authentication, role assignment, team assignment, status, and account metadata.
+- Key fields: name, email, password hash, role, teamId, status, last login/logout, temporary password flag, commission percentage, employment type, timestamps.
+- Notes: password hashing is done using bcrypt before save.
+- Relationships: team membership, created-by user references, and optional commission data.
+
+Lead
+- Purpose: represent a potential customer/opportunity.
+- Fields: ownerId, companyName, contact info, statuses, pipelineStage, notes, pipeline history, managerId, etc.
+- Relationships: owner/manager references, notes and pipeline-stage history embedded arrays.
+
+Customer
+- Purpose: represent approved or review-pending customers.
+- Fields: agentId, companyName, contactName, contactPhone, contactEmail, creditLimit, creditStatus, status, shipping notes, timestamps.
+
+Carrier
+- Purpose: store approved or pending carriers and their vetting information.
+- Fields include licensing/insurance details and reviewHistory.
+
+QuoteRequest
+- Purpose: store pricing quotes and approval states.
+- Fields include lane, equipment type, commodity, customer/carrier rates, margin values, status, expiry, reviewer, review notes, timestamps.
+
+Load
+- Purpose: store freight shipment records.
+- Fields include many pickup/delivery, freight, pricing, mileage, document, and payment details.
+
+Invoice
+- Purpose: store billing data and payment states.
+- Fields include invoice number, customerId, loadIds, billing snapshot, line items, totals, balance, payments, status, dates, invoice metadata.
+
+Commission
+- Purpose: store agent commission records linked to loads.
+
+ApprovalRequest
+- Purpose: store approval requests for modules such as leads, followups, customers, quotes, carriers, and loads.
+- Fields include module, recordId, actionType, requestedBy, teamId, new/previous values, audit history, comments, status, and approver information.
+
+FollowUp
+- Purpose: create and track task follow-ups.
+
+Notification
+- Purpose: store internal notifications for users.
+
+Team
+- Purpose: group users into teams for role-based visibility and management.
+
+OnboardingDocument / OnboardingRequirement
+- Purpose: support onboarding and training progress tracking.
+
+ReassignmentHistory
+- Purpose: record owner reassignments for leads.
+
+AuditLog
+- Purpose: capture system events and activity.
+
+Observed implementation details
+- The schema uses embedded arrays for certain data such as notes and pipeline history.
+- Some modules appear to be partially implemented or have commented-out route entries in the UI shell.
+
+8. Authentication Flow
+----------------------
+Authentication is cookie-based and uses JWTs.
+
+Login flow
+- POST /api/auth/login accepts email and password.
+- The server validates the submitted body using Zod schema validation.
+- If the user exists and the password is correct, the server checks that the account is active and not suspended.
+- The server updates lastLoginAt, lastAuthAction, and IP address before issuing tokens.
+- Two cookies are set: accessToken and refreshToken.
+
+Session restoration
+- On app startup, the auth context calls /api/auth/session to restore the active session from the access token cookie.
+- If the access token is missing or invalid, the session is cleared.
+
+Refresh flow
+- The client sends a request to /api/auth/refresh using the refresh cookie.
+- The server validates the refresh token and issues a new access token.
+
+Logout flow
+- POST /api/auth/logout clears auth cookies and updates the user’s last logout metadata.
+- The frontend also triggers a logout signal on timeout.
+
+Password change flow
+- The app introduces a temporary-password state and shows a modal forcing the user to change the password on next login.
+- Password change uses /api/auth/change-password and validates current/new/confirm password, minimum length, and monthly change limits.
+
+Authorization model
+- Authentication is implemented server-side via requireAuth and requireRole helpers.
+- Role-based access is enforced in the API layer and in the frontend navigation using the capability matrix.
+
+9. API Documentation
+--------------------
+The main app API router is centralized in src/api/index.ts and dispatches to route handlers under src/api.
+
+Authentication endpoints
+- POST /api/auth/login
+  - Authenticates a user and returns a user session payload.
+  - Requires email and password.
+  - Returns 401 for invalid credentials and 403 for inactive/suspended accounts.
+
+- POST /api/auth/logout
+  - Clears auth cookies and updates logout metadata.
+
+- POST /api/auth/refresh
+  - Refreshes the access token from a refresh cookie.
+
+- GET /api/auth/session
+  - Returns the current session user if the access token is valid.
+
+- POST /api/auth/change-password
+  - Changes the current password and clears temporary-password status.
+
+User management endpoints
+- GET/POST/PATCH/DELETE /api/users
+  - Manage users and their account details, roles, teams, and status.
+
+Team endpoints
+- GET/POST/PATCH/DELETE /api/teams
+  - Manage teams and team membership.
+
+Lead endpoints
+- GET/POST/PATCH/DELETE /api/leads
+  - List, create, update, and delete leads.
+  - Includes approval-aware create behavior for lower-privilege roles.
+
+Customer endpoints
+- GET/POST/PATCH/DELETE /api/customers
+  - Manage customer records.
+
+Quote endpoints
+- GET/POST/PATCH /api/quotes
+  - Manage quotes and quote records.
+- POST /api/quotes/:id/approve
+  - Approve a quote request by ID.
+
+Carrier endpoints
+- GET/POST/PATCH/DELETE /api/carriers
+  - Manage carriers and their vetting state.
+
+Load endpoints
+- GET/POST/PATCH/DELETE /api/loads
+  - Manage loads and their operational and financial state.
+
+Activity endpoints
+- POST /api/activity/log
+  - Logs an activity event.
+- POST /api/activity/clock-in and /api/activity/clock-out
+  - Track attendance or work state.
+- GET /api/activity/logs
+  - Retrieve activity logs.
+
+Approval endpoints
+- GET /api/approvals
+  - List approval requests based on role scope.
+- POST /api/approvals
+  - Create an approval request.
+- PATCH /api/approvals
+  - Approve, reject, request changes, add comments, or update a request.
+
+Invoice endpoints
+- GET/POST/PATCH/DELETE /api/invoices
+  - Manage invoices.
+
+Follow-up endpoints
+- GET/POST/PATCH/DELETE /api/followups
+  - Manage follow-up tasks.
+
+Dashboard and notifications
+- GET /api/dashboard
+  - Returns role-based dashboard data.
+- GET /api/notifications
+  - Retrieve notifications.
+- POST /api/notifications
+  - Create or update notifications.
+- GET /api/notifications/kpi-summary
+  - Provide KPI summaries for notifications.
+
+Admin endpoints
+- POST /api/admin/reset-system
+  - Resets or clears system data.
+- POST /api/admin/cleanup
+  - Cleanup operations.
+
+Audit endpoints
+- GET /api/audit-logs
+  - View audit logs.
+
+10. Business Logic
+------------------
+Approval chains
+- The application implements a role-aware approval workflow for lower-privilege users.
+- Approvers can approve/reject/request changes based on role and team scope.
+- Team managers and lead agents are restricted to their own team’s requests.
+
+Status transitions
+- Leads support a pipeline stage history.
+- Loads support a state progression through shipping lifecycle phases.
+- Carriers support review status transitions.
+- Invoices and commissions have their own state systems.
+
+Margin and commission logic
+- Quote margins are auto-calculated from customer rate and carrier cost.
+- Load gross margin values influence dashboard summaries and commission records.
+- Commission records track payout status and month/year.
+
+Notifications
+- Approval outcomes, comments, and related system events generate notifications.
+- Notification payloads include metadata such as module, action, and record ID.
+
+Assignment rules
+- Leads and follow-ups can be assigned to specific users or team contexts.
+- Reassignment history records changes to ownerId.
+
+11. Forms
+---------
+The application includes many forms implemented in React route components. Examples include:
+- Login form
+- Password change form
+- Lead create/edit form
+- Customer form
+- Quote form
+- Carrier form
+- Load form
+- Invoice form
+- User create/edit form
+- Team create/edit form
+
+Common form behaviors
+- Client-side validation is handled by the UI for required fields and field consistency.
+- Some forms rely on direct API submission that then updates the local list state.
+- Error messages are surfaced with toast notifications.
+- Export capability exists from list screens for data extraction.
+
+12. Dashboard
+--------------
+The dashboard is one of the main user-facing screens.
+
+Dashboard data sources
+- Aggregated from leads, quote requests, loads, invoices, commissions, notifications, approvals, follow-ups, onboarding, teams, and users.
+
+Dashboard features
+- KPI cards
+- Margin trend charts
+- Agent performance charts
+- Team performance tables
+- Recent activity panels
+- Pending approvals
+- Upcoming follow-ups
+- Recent loads
+- Invoice/commission summary sections
+- Training progress for onboarding
+- Quick action links
+
+Role-specific behavior
+- Owner/admin dashboards are broad and executive-style.
+- Ops managers get operational-focused views.
+- Team managers and lead agents see team-aware data.
+- Agents see their own activity and immediate responsibilities.
+- Accounting gets finance-focused summaries.
+
+13. Reports
+------------
+The UI contains a reports route, but the current navigation shell has the route commented out. The backend includes dashboard aggregation logic and KPI summaries that effectively provide reporting data. The actual reports page is not fully surfaced in navigation in the current implementation, which suggests a partially completed report module.
+
+14. Notifications
+-----------------
+The portal has a notification subsystem.
+
+Notification types include
+- System notifications
+- Approval-related notifications
+- Manager comments
+- KPI summaries
+- Activity/alerting notifications
+
+Triggering sources
+- Approval outcomes
+- Commenting on approvals
+- Activity events
+- Dashboard data generation
+
+Recipient logic
+- Notifications can target specific users, admins, team managers, and lead agents.
+
+15. File Management
+-------------------
+The codebase includes document and onboarding support, but the UI shell has these routes commented out. The load model also contains document status flags such as rate confirmation, BOL, POD, carrier invoice, and customer invoice. This suggests the application intends to support document tracking, but the current visible navigation may not expose all of those features fully.
+
+16. Project Folder Structure
+----------------------------
+Key folders and their purpose:
+- src/ — main source code
+- src/api/ — API route handlers and request routing
+- src/components/ — shared UI components and data table shell
+- src/hooks/ — custom hooks such as useDashboard and useNotifications
+- src/lib/ — utility and infrastructure modules (auth, API client, roles, db, formatting, export, validation, notification logic)
+- src/models/ — Mongoose models
+- src/routes/ — TanStack Router route definitions
+- src/styles.css and theme CSS files — styling and theme entries
+- docs/ — project reference docs, login details, and implementation planning notes
+- scripts/ — seed and maintenance scripts
+- public/ — static assets and public files
+
+17. Configuration
+-----------------
+Configuration and environment variables
+- MONGO_URI: required by MongoDB connection.
+- JWT_SECRET: required for access token signing.
+- JWT_REFRESH_SECRET: required for refresh token signing.
+- NODE_ENV: used to toggle Secure cookie behavior.
+
+Other configuration assets
+- package.json: scripts and dependencies
+- vite.config.ts: app server and Vite/TanStack Start configuration
+- bunfig.toml and tsconfig.json: tooling and TypeScript config
+- components.json: UI component config
+- .env / .env.example / .env.local: local config values and environment overrides
+
+18. External Services/Integrations
+----------------------------------
+The codebase shows the following external or third-party integrations:
+- MongoDB via Mongoose
+- JWT-based authentication
+- Browser notifications and in-app notification UI
+- Optional UI theme system with CSS variables and multiple theme files
+- File export to CSV/XLSX via xlsx
+- Recharts for charts
+- Sonner for toast notifications
+- Radix UI primitives for UI components
+
+The code does not show a deep integration with payment processors, email providers, SMS gateways, or mapping services in the current implementation.
+
+19. Error Handling
+------------------
+The application includes several layers of error handling:
+- API handlers wrap failures in structured error responses.
+- Frontend uses toast notifications for user-facing failures.
+- Server-level SSR error handling catches catastrophic rendering errors and returns an error page.
+- The auth client handles 401 responses by trying refresh before failing.
+- Dashboard errors are intentionally non-blocking; the dashboard returns empty data rather than crashing on failure.
+
+20. Security
+-------------
+Observed security measures
+- Password hashing with bcrypt
+- JWT-based authentication with cookie transport
+- Role-based access control in both the UI and API
+- Session restoration and refresh token logic
+- Authentication cookies are marked HttpOnly and SameSite Strict
+- Input validation uses Zod for auth login and data parsing helpers
+- Temporary password enforcement is implemented
+
+Security considerations / risks
+- The docs folder contains seed login details and passwords in plaintext; that is a sensitivity concern for operational use.
+- The current implementation appears to rely heavily on server-side checks but some UI behavior may still be permissive without server enforcement in all flows.
+- The project includes admin reset/cleanup routes, which should be restricted carefully in production.
+
+21. Dependencies
+----------------
+Major libraries and why they are used
+- React: UI rendering
+- TanStack Router/Start: routing and application shell
+- React Query: data fetching and caching pattern alignment
+- Mongoose: MongoDB access
+- jsonwebtoken: JWT signing/verification
+- bcryptjs: password hashing
+- zod: validation
+- react-hook-form: form management
+- date-fns: date formatting/manipulation
+- recharts: charts and dashboard visualization
+- xlsx: spreadsheet export
+- sonner: toast notifications
+- lucide-react: iconography
+- tailwindcss and shadcn-style UI primitives: styling and component composition
+
+22. Important Code Areas
+------------------------
+Core modules worth studying in detail
+- src/lib/auth-context.tsx: client-side authentication and session timeout handling
+- src/lib/auth.ts: token verification and session-user loading
+- src/lib/roles.ts: capability matrix and role logic
+- src/lib/api-client.ts: central API request wrapper with auth refresh handling
+- src/api/index.ts: API dispatcher
+- src/api/dashboard.ts: dashboard metrics computation
+- src/api/approvals.ts: approval workflow logic and notifications
+- src/api/leads/list.ts: lead create/edit/delete and approval behavior
+- src/components/app-shell.tsx: navigation, role-aware sidebar, global search, sign out, theme management
+- src/routes/_app.dashboard.tsx: role-based dashboard UI
+- src/routes/_app.users.tsx: user management UI
+- src/models/*.ts: domain data shapes and validation rules
+
+23. Application Lifecycle
+------------------------
+On application start
+- The router and app shell mount.
+- The auth provider tries to restore a session via /api/auth/session.
+- The sidebar and protected routes initialize based on current session and role.
+
+On login
+- Credentials are validated and auth cookies are issued.
+- Session state is updated in the frontend.
+- The user is redirected into the protected app shell.
+
+On navigation
+- The protected app shell checks session status and redirects to login if not authenticated.
+- Sidebar entries are filtered based on role capabilities.
+
+On CRUD operations
+- The frontend calls the REST-style API routes in src/api/index.ts.
+- The handler performs validation, persistence, and sometimes approval workflows.
+- Local UI state is updated to reflect the server result.
+
+On logout
+- Auth cookies are cleared and the auth context resets the client state.
+- The user is redirected to the login page.
+
+24. Client Guide (non-technical)
+--------------------------------
+For a non-technical client, the portal is essentially a digital operations hub for freight operations.
+
+What it helps with
+- Track new business leads and their progress.
+- Review customer information and quote activity.
+- Monitor carrier records and operational loads.
+- Keep track of follow-ups and approvals.
+- See overall performance on a dashboard.
+- Manage invoices and commissions.
+
+Typical daily workflow
+- Start the day by reviewing dashboard KPIs and pending approvals.
+- Work through leads and follow-ups.
+- Create or update customers and quotes.
+- Review operational load progress and invoice status.
+- Respond to notifications and approvals.
+- Use the admin area only for account management or team oversight.
+
+25. Administrator Guide
+-----------------------
+Administrators can:
+- Create and manage users
+- Assign roles and team membership
+- Change user status
+- Review audit logs
+- Access admin-only tools
+- Manage teams
+- Reset or clean up system state if needed
+
+Operational caution
+- Admin-level functionality should be restricted carefully because it can affect auth, roles, and data visibility across the platform.
+- The docs folder contains seed login information; in production that should be handled carefully and not left in repository docs.
+
+26. Known Limitations
+---------------------
+The documentation and code inspection reveal several limitations or incomplete areas:
+- The reports route exists but is not prominently exposed in the current navigation.
+- The onboarding and documents modules appear partially implemented and commented out in the sidebar.
+- Some docs in the docs folder appear to describe planned or older behavior rather than the actual code.
+- The login-details file contains plaintext credentials; that should be treated as a security concern and removed or secured.
+- The app shows a strong domain model but some user-facing business flows may still be incomplete compared to a fully mature TMS.
+
+27. Overall Project Summary
+--------------------------
+This portal is a role-driven freight brokerage operations platform built on React, TanStack Router/Start, and MongoDB. It combines CRM-style lead and customer management with TMS-style load, invoice, and commission workflows. The system is actively designed around approval chains, role-based visibility, notifications, and analytics.
+
+The most important observation is that the implementation is not merely a static dashboard; it is an operational system with real workflow logic. Leads, approvals, carriers, loads, invoices, commissions, follow-ups, users, and teams are all represented in the code with a meaningful business purpose. The app appears to be a solid internal portal foundation that is already functional for many core workflows, while some features such as the reports page, onboarding/document management, and deeper reporting are only partially surfaced or unfinished.
+
+Suggested future improvements
+- Surface the reports feature more prominently and fully implement its route and data views.
+- Expand document and onboarding support into full user-facing modules.
+- Review and harden the permission model for all write operations.
+- Remove or secure sensitive login documentation from the repository.
+- Add more comprehensive automated tests and end-to-end coverage for approvals, loads, invoices, and reporting.
