@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const mongoUri =
   process.env.MONGO_URI ||
   "mongodb://djs-portal:djsport%40ltex%40s@ac-05gm0cw-shard-00-00.5odo9dw.mongodb.net:27017,ac-05gm0cw-shard-00-01.5odo9dw.mongodb.net:27017,ac-05gm0cw-shard-00-02.5odo9dw.mongodb.net:27017/?ssl=true&replicaSet=atlas-u9n2kr-shard-0&authSource=admin&appName=djs-tms";
-const dbName = process.env.MONGO_DB_NAME || "djs-tms";
+const dbName = process.env.MONGO_DB_NAME || "freight-agent-portal";
 
 const userSchema = new mongoose.Schema(
   {
@@ -238,35 +238,35 @@ async function seed() {
     },
     {
       name: "Danny Eden 2",
-      email: "danny2@djfreight.com",
+      email: "danny2@djsfreightbroker.com",
       role: "admin",
       status: "active",
       password: "Danny@2026!Q7x",
     },
     {
       name: "Billy Smith",
-      email: "billy@djfreight.com",
+      email: "billy@djsfreightbroker.com",
       role: "ops_manager",
       status: "active",
       password: "Billy@2026!M9p",
     },
     {
       name: "Joshua Harrison",
-      email: "joshua@djfreight.com",
+      email: "joshua@djsfreightbroker.com",
       role: "ops_manager",
       status: "active",
       password: "Joshua@2026!L2m",
     },
     {
       name: "Emily Canrobert",
-      email: "emily@djfreight.com",
+      email: "emily.canrobert@djsfreightbroker.com",
       role: "ops_manager",
       status: "active",
       password: "Emily@2026!R4t",
     },
     {
       name: "Gray Miller",
-      email: "gray@djfreight.com",
+      email: "gray.miller@djsfreightbroker.com",
       role: "ops_manager",
       status: "active",
       password: "Gray@2026!K8n",
@@ -329,9 +329,13 @@ async function seed() {
   );
 
   const admin = seededUsers.find((user) => user.email === "danny@djfreight.com");
-  const opsManager = seededUsers.find((user) => user.email === "billy@djfreight.com");
+  const opsManager = seededUsers.find((user) => user.name === "Billy Smith");
   const agent = seededUsers.find((user) => user.email === "agent.one@djfreight.com");
   const trainee = seededUsers.find((user) => user.email === "trainee.one@djfreight.com");
+
+  if (!admin || !opsManager || !agent || !trainee) {
+    throw new Error("Required seeded users were not created successfully.");
+  }
 
   const team = await Team.create({
     name: "Alpha Team",

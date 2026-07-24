@@ -6,23 +6,28 @@ Danny Eden
 - Password: Danny@2026!Q7x
 - Role: admin
 
+Danny Eden 2
+- Email: danny2@djsfreightbroker.com
+- Password: Danny@2026!Q7x
+- Role: admin
+
 Billy Smith
-- Email: billy@djfreight.com
+- Email: billy@djsfreightbroker.com
 - Password: Billy@2026!M9p
 - Role: ops_manager
 
 Joshua Harrison
-- Email: joshua@djfreight.com
+- Email: joshua@djsfreightbroker.com
 - Password: Joshua@2026!L2m
 - Role: ops_manager
 
 Emily Canrobert
-- Email: emily@djfreight.com
+- Email: emily.canrobert@djsfreightbroker.com
 - Password: Emily@2026!R4t
 - Role: ops_manager
 
 Gray Miller
-- Email: gray@djfreight.com
+- Email: gray.miller@djsfreightbroker.com
 - Password: Gray@2026!K8n
 - Role: ops_manager
 
