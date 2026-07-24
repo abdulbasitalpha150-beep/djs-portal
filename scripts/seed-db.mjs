@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 
 const mongoUri =
   process.env.MONGO_URI ||
-  "mongodb+srv://ben2543743_db_user:5DcBMQOZ2Kgv82eY@clientcluster.fctnri3.mongodb.net/?appName=ClientCluster";
-const dbName = process.env.MONGO_DB_NAME || "freight-agent-portal";
+  "mongodb://djs-portal:djsport%40ltex%40s@ac-05gm0cw-shard-00-00.5odo9dw.mongodb.net:27017,ac-05gm0cw-shard-00-01.5odo9dw.mongodb.net:27017,ac-05gm0cw-shard-00-02.5odo9dw.mongodb.net:27017/?ssl=true&replicaSet=atlas-u9n2kr-shard-0&authSource=admin&appName=djs-tms";
+const dbName = process.env.MONGO_DB_NAME || "djs-tms";
 
 const userSchema = new mongoose.Schema(
   {
@@ -183,7 +183,7 @@ async function seed() {
     OnboardingRequirement.deleteMany({}),
   ]);
 
-  const passwordHash = await bcrypt.hash("Welcome123!", 12);
+  const passwordHash = await bcrypt.hash("Welcome2026!A1", 12);
 
   await OnboardingRequirement.create([
     {
@@ -229,96 +229,107 @@ async function seed() {
   ]);
 
   const roleSeeds = [
-    { name: "Admin One", email: "admin.one@djfreight.com", role: "admin", status: "active" },
-    { name: "Admin Two", email: "admin.two@djfreight.com", role: "admin", status: "active" },
-    { name: "Danny Eden", email: "danny@djfreight.com", role: "admin", status: "active" },
-
     {
-      name: "Ops Manager One",
-      email: "opsmanager.one@djfreight.com",
-      role: "ops_manager",
+      name: "Danny Eden",
+      email: "danny@djfreight.com",
+      role: "admin",
       status: "active",
+      password: "Danny@2026!Q7x",
     },
     {
-      name: "Ops Manager Two",
-      email: "opsmanager.two@djfreight.com",
-      role: "ops_manager",
+      name: "Danny Eden 2",
+      email: "danny2@djfreight.com",
+      role: "admin",
       status: "active",
+      password: "Danny@2026!Q7x",
     },
     {
-      name: "Marcus Johnson",
-      email: "marcus@djfreight.com",
+      name: "Billy Smith",
+      email: "billy@djfreight.com",
       role: "ops_manager",
       status: "active",
+      password: "Billy@2026!M9p",
+    },
+    {
+      name: "Joshua Harrison",
+      email: "joshua@djfreight.com",
+      role: "ops_manager",
+      status: "active",
+      password: "Joshua@2026!L2m",
+    },
+    {
+      name: "Emily Canrobert",
+      email: "emily@djfreight.com",
+      role: "ops_manager",
+      status: "active",
+      password: "Emily@2026!R4t",
+    },
+    {
+      name: "Gray Miller",
+      email: "gray@djfreight.com",
+      role: "ops_manager",
+      status: "active",
+      password: "Gray@2026!K8n",
     },
     {
       name: "Team Manager One",
       email: "teammanager.one@djfreight.com",
       role: "team_manager",
       status: "active",
-    },
-    {
-      name: "Team Manager Two",
-      email: "teammanager.two@djfreight.com",
-      role: "team_manager",
-      status: "active",
+      password: "Welcome2026!A1",
     },
     {
       name: "Lead Agent One",
       email: "leadagent.one@djfreight.com",
       role: "leadagent",
       status: "active",
+      password: "Welcome2026!A1",
     },
     {
-      name: "Lead Agent Two",
-      email: "leadagent.two@djfreight.com",
-      role: "leadagent",
+      name: "Agent One",
+      email: "agent.one@djfreight.com",
+      role: "agent",
       status: "active",
+      password: "Welcome2026!A1",
     },
-    { name: "Agent One", email: "agent.one@djfreight.com", role: "agent", status: "active" },
-    { name: "Agent Two", email: "agent.two@djfreight.com", role: "agent", status: "active" },
-    { name: "Trainee One", email: "trainee.one@djfreight.com", role: "trainee", status: "trainee" },
-    { name: "Trainee Two", email: "trainee.two@djfreight.com", role: "trainee", status: "trainee" },
+    {
+      name: "Trainee One",
+      email: "trainee.one@djfreight.com",
+      role: "trainee",
+      status: "trainee",
+      password: "Welcome2026!A1",
+    },
     {
       name: "Accounting One",
       email: "accounting.one@djfreight.com",
       role: "accounting",
       status: "active",
-    },
-    {
-      name: "Accounting Two",
-      email: "accounting.two@djfreight.com",
-      role: "accounting",
-      status: "active",
+      password: "Welcome2026!A1",
     },
     {
       name: "Suspended One",
       email: "suspended.one@djfreight.com",
       role: "suspended",
       status: "inactive",
-    },
-    {
-      name: "Suspended Two",
-      email: "suspended.two@djfreight.com",
-      role: "suspended",
-      status: "inactive",
+      password: "Welcome2026!A1",
     },
   ];
 
   const seededUsers = await Promise.all(
-    roleSeeds.map(({ name, email, role, status }) =>
-      User.create({
+    roleSeeds.map(async ({ name, email, role, status, password }) => {
+      const passwordHash = await bcrypt.hash(password, 12);
+      return User.create({
         name,
         email,
         password: passwordHash,
         role,
         status,
-      }),
-    ),
+      });
+    }),
   );
 
-  const admin = seededUsers.find((user) => user.email === "admin.one@djfreight.com");
-  const opsManager = seededUsers.find((user) => user.email === "opsmanager.one@djfreight.com");
+  const admin = seededUsers.find((user) => user.email === "danny@djfreight.com");
+  const opsManager = seededUsers.find((user) => user.email === "billy@djfreight.com");
   const agent = seededUsers.find((user) => user.email === "agent.one@djfreight.com");
   const trainee = seededUsers.find((user) => user.email === "trainee.one@djfreight.com");
 

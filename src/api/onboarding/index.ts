@@ -281,10 +281,41 @@ export async function onboardingHandler(request: Request) {
       });
 
       // Notify reviewers about the document submission
-      const uploadSender: SenderContext = { userId: user.id, name: user.name, role: user.role, teamId: user.teamId };
+      const uploadSender: SenderContext = {
+        userId: user.id,
+        name: user.name,
+        role: user.role,
+        teamId: user.teamId,
+      };
       const updatedDocId = updated?._id.toString() ?? "";
-      void notifyAdmins({ title: "Document submitted for review", message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`, notificationType: "document_submitted", relatedModule: "training", recordType: "OnboardingDocument", recordId: updatedDocId, actionUrl: `/onboarding?userId=${targetUserId}`, priority: "low", metadata: { userId: targetUserId, requirementKey } }, uploadSender);
-      void notifyOpsManagers({ title: "Document submitted for review", message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`, notificationType: "document_submitted", relatedModule: "training", recordType: "OnboardingDocument", recordId: updatedDocId, actionUrl: `/onboarding?userId=${targetUserId}`, priority: "low", metadata: { userId: targetUserId, requirementKey } }, uploadSender);
+      void notifyAdmins(
+        {
+          title: "Document submitted for review",
+          message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`,
+          notificationType: "document_submitted",
+          relatedModule: "training",
+          recordType: "OnboardingDocument",
+          recordId: updatedDocId,
+          actionUrl: `/onboarding?userId=${targetUserId}`,
+          priority: "low",
+          metadata: { userId: targetUserId, requirementKey },
+        },
+        uploadSender,
+      );
+      void notifyOpsManagers(
+        {
+          title: "Document submitted for review",
+          message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`,
+          notificationType: "document_submitted",
+          relatedModule: "training",
+          recordType: "OnboardingDocument",
+          recordId: updatedDocId,
+          actionUrl: `/onboarding?userId=${targetUserId}`,
+          priority: "low",
+          metadata: { userId: targetUserId, requirementKey },
+        },
+        uploadSender,
+      );
 
       return jsonResponse({ ok: true, document: updated });
     }
@@ -322,10 +353,41 @@ export async function onboardingHandler(request: Request) {
     });
 
     // Notify reviewers about the new document submission
-    const newDocSender: SenderContext = { userId: user.id, name: user.name, role: user.role, teamId: user.teamId };
+    const newDocSender: SenderContext = {
+      userId: user.id,
+      name: user.name,
+      role: user.role,
+      teamId: user.teamId,
+    };
     const newDocId = created._id.toString();
-    void notifyAdmins({ title: "Document submitted for review", message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`, notificationType: "document_submitted", relatedModule: "training", recordType: "OnboardingDocument", recordId: newDocId, actionUrl: `/onboarding?userId=${targetUserId}`, priority: "low", metadata: { userId: targetUserId, requirementKey } }, newDocSender);
-    void notifyOpsManagers({ title: "Document submitted for review", message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`, notificationType: "document_submitted", relatedModule: "training", recordType: "OnboardingDocument", recordId: newDocId, actionUrl: `/onboarding?userId=${targetUserId}`, priority: "low", metadata: { userId: targetUserId, requirementKey } }, newDocSender);
+    void notifyAdmins(
+      {
+        title: "Document submitted for review",
+        message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`,
+        notificationType: "document_submitted",
+        relatedModule: "training",
+        recordType: "OnboardingDocument",
+        recordId: newDocId,
+        actionUrl: `/onboarding?userId=${targetUserId}`,
+        priority: "low",
+        metadata: { userId: targetUserId, requirementKey },
+      },
+      newDocSender,
+    );
+    void notifyOpsManagers(
+      {
+        title: "Document submitted for review",
+        message: `${targetUser.name} uploaded "${originalFileName}" (${requirement.label}).`,
+        notificationType: "document_submitted",
+        relatedModule: "training",
+        recordType: "OnboardingDocument",
+        recordId: newDocId,
+        actionUrl: `/onboarding?userId=${targetUserId}`,
+        priority: "low",
+        metadata: { userId: targetUserId, requirementKey },
+      },
+      newDocSender,
+    );
 
     return jsonResponse({ ok: true, document: created });
   }
@@ -407,14 +469,47 @@ export async function onboardingHandler(request: Request) {
 
     // Notify the document owner about the review decision
     if (targetUserId !== user.id && updated) {
-      const reviewSender: SenderContext = { userId: user.id, name: user.name, role: user.role, teamId: user.teamId };
+      const reviewSender: SenderContext = {
+        userId: user.id,
+        name: user.name,
+        role: user.role,
+        teamId: user.teamId,
+      };
       const reviewDocId = updated._id.toString();
       const reviewUrl = `/onboarding?userId=${targetUserId}`;
       const reviewStatus = updated.status;
       if (reviewStatus === "approved") {
-        void notifyUser(targetUserId, { title: "Document approved", message: `Your document "${updated.originalFileName ?? updated.requirementLabel ?? ""}" has been approved.`, notificationType: "document_approved", relatedModule: "training", recordType: "OnboardingDocument", recordId: reviewDocId, actionUrl: reviewUrl, priority: "low", metadata: { requirementKey: updated.requirementKey } }, reviewSender);
+        void notifyUser(
+          targetUserId,
+          {
+            title: "Document approved",
+            message: `Your document "${updated.originalFileName ?? updated.requirementLabel ?? ""}" has been approved.`,
+            notificationType: "document_approved",
+            relatedModule: "training",
+            recordType: "OnboardingDocument",
+            recordId: reviewDocId,
+            actionUrl: reviewUrl,
+            priority: "low",
+            metadata: { requirementKey: updated.requirementKey },
+          },
+          reviewSender,
+        );
       } else if (reviewStatus === "rejected") {
-        void notifyUser(targetUserId, { title: "Document rejected", message: `Your document "${updated.originalFileName ?? updated.requirementLabel ?? ""}" has been rejected. ${comments || updated.rejectionReason || ""}`, notificationType: "document_rejected", relatedModule: "training", recordType: "OnboardingDocument", recordId: reviewDocId, actionUrl: reviewUrl, priority: "high", metadata: { requirementKey: updated.requirementKey, comments } }, reviewSender);
+        void notifyUser(
+          targetUserId,
+          {
+            title: "Document rejected",
+            message: `Your document "${updated.originalFileName ?? updated.requirementLabel ?? ""}" has been rejected. ${comments || updated.rejectionReason || ""}`,
+            notificationType: "document_rejected",
+            relatedModule: "training",
+            recordType: "OnboardingDocument",
+            recordId: reviewDocId,
+            actionUrl: reviewUrl,
+            priority: "high",
+            metadata: { requirementKey: updated.requirementKey, comments },
+          },
+          reviewSender,
+        );
       }
     }
 

@@ -1,0 +1,57 @@
+DJ Freight Portal - Seed Login Details
+====================================
+
+Danny Eden
+- Email: danny@djfreight.com
+- Password: Danny@2026!Q7x
+- Role: admin
+
+Billy Smith
+- Email: billy@djfreight.com
+- Password: Billy@2026!M9p
+- Role: ops_manager
+
+Joshua Harrison
+- Email: joshua@djfreight.com
+- Password: Joshua@2026!L2m
+- Role: ops_manager
+
+Emily Canrobert
+- Email: emily@djfreight.com
+- Password: Emily@2026!R4t
+- Role: ops_manager
+
+Gray Miller
+- Email: gray@djfreight.com
+- Password: Gray@2026!K8n
+- Role: ops_manager
+
+Team Manager One
+- Email: teammanager.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: team_manager
+
+Lead Agent One
+- Email: leadagent.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: leadagent
+
+Agent One
+- Email: agent.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: agent
+
+Trainee One
+- Email: trainee.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: trainee
+
+Accounting One
+- Email: accounting.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: accounting
+
+Suspended One
+- Email: suspended.one@djfreight.com
+- Password: Welcome2026!A1
+- Role: suspended
