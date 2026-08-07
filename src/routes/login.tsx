@@ -106,7 +106,7 @@ function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Any password works in this demo"
+              placeholder="Enter your password"
               className="h-11 pr-10"
             />
 
